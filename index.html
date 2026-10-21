@@ -13,7 +13,8 @@
 :root{--kraft:#f2e8d3;--ink:#1d3b2a;--verde:#2f6b3a;--azul:#1f4fa3;--sol:#f2b419;--barro:#c8502e;
   --display:"Bowlby One","Arial Black",Impact,sans-serif;--hand:"Caveat","Comic Sans MS",cursive;--body:"Work Sans",system-ui,sans-serif}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:var(--body);color:var(--ink)}
+/* sin fondo: MindAR pone el video de la cámara detrás de la escena y un fondo lo taparía */
+html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:var(--body);color:var(--ink)}
 a-scene{position:fixed;inset:0}
 .intro{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:var(--azul);
   background-image:radial-gradient(rgba(255,255,255,.08) 1.2px,transparent 1.3px);background-size:9px 9px;
