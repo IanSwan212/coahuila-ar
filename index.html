@@ -155,18 +155,55 @@ document.getElementById("nextp").onclick = () => { pi = (pi + 1) % PICS[cur.id].
 target.addEventListener("targetFound", () => { document.getElementById("hint").hidden = true; });
 target.addEventListener("targetLost", () => { document.getElementById("hint").hidden = false; });
 
-document.getElementById("go").onclick = async () => {
+// explica en palabras claras por qué no abrió la cámara
+function fail(msg) {
   const err = document.getElementById("err");
+  err.hidden = false; err.textContent = msg;
+  document.getElementById("intro").hidden = false;
+  document.getElementById("hint").hidden = true;
+  document.getElementById("go").disabled = false;
+}
+const inApp = /Instagram|FBAN|FBAV|WhatsApp|Line\/|TikTok|Snapchat|; wv\)/i.test(navigator.userAgent);
+if (inApp) fail("Estás dentro de una app (WhatsApp, Instagram, Facebook o un lector de QR). Toca los tres puntos ⋮ o el ícono de compartir y elige \"Abrir en Chrome\" o \"Abrir en Safari\".");
+
+scene.addEventListener("arError", () => fail("La cámara se abrió pero no pudo iniciar el video. Cierra otras apps que usen la cámara y vuelve a intentar."));
+scene.addEventListener("arReady", () => {
+  document.getElementById("intro").hidden = true;
+  document.getElementById("hint").hidden = false;
+});
+
+document.getElementById("go").onclick = async () => {
+  const go = document.getElementById("go");
+  document.getElementById("err").hidden = true;
+  go.disabled = true; go.textContent = "Abriendo cámara…";
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    go.textContent = "Encender la cámara";
+    return fail("Este navegador no permite usar la cámara aquí. Abre el link en Chrome (Android) o Safari (iPhone).");
+  }
+  // primero pedimos la cámara nosotros, para mostrar el error exacto
+  try {
+    const st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+    st.getTracks().forEach(t => t.stop());
+  } catch (e) {
+    go.textContent = "Encender la cámara";
+    const m = {
+      NotAllowedError: "El permiso de cámara está bloqueado. Toca el candado junto al link → Permisos → Cámara → Permitir, y recarga la página.",
+      NotFoundError: "No se encontró ninguna cámara en este dispositivo.",
+      NotReadableError: "Otra app está usando la cámara. Ciérrala y vuelve a intentar.",
+      OverconstrainedError: "La cámara trasera no está disponible. Intenta en otro navegador.",
+      SecurityError: "El navegador bloqueó la cámara por seguridad. Abre el link en Chrome o Safari."
+    };
+    return fail(m[e && e.name] || "No se pudo abrir la cámara (" + (e && e.name) + "). Abre el link en Chrome o Safari.");
+  }
   try {
     await new Promise(r => scene.hasLoaded ? r() : scene.addEventListener("loaded", r, { once: true }));
     if (!target.children.length) build();
     audio.src = "snd/desierto.mp3"; audio.volume = 0; audio.play().catch(() => {}).finally(() => { audio.pause(); audio.volume = 1; });
     await scene.systems["mindar-image-system"].start();
-    document.getElementById("intro").hidden = true;
-    document.getElementById("hint").hidden = false;
+    go.textContent = "Encender la cámara";
   } catch (e) {
-    err.hidden = false;
-    err.textContent = "No se pudo abrir la cámara. Revisa que diste permiso y que la página se abrió con https.";
+    go.textContent = "Encender la cámara";
+    fail("No se pudo iniciar la realidad aumentada (" + (e && e.message) + ").");
   }
 };
 </script>
