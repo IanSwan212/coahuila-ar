@@ -48,7 +48,24 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-famil
 .btn.x{background:var(--barro)}.btn.v{background:var(--verde)}
 .btn:focus-visible,.go:focus-visible{outline:3px dashed var(--sol);outline-offset:3px}
 [hidden]{display:none!important}
-.top{position:fixed;top:calc(10px + env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));z-index:12;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
+/* modo explorar: el cartel en pantalla con sus apartados tocables, como en la versión interactiva */
+.explore{position:fixed;inset:0;z-index:13;overflow-y:auto;background:var(--azul);
+  background-image:radial-gradient(rgba(255,255,255,.08) 1.2px,transparent 1.3px);background-size:9px 9px;
+  padding:calc(58px + env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.ex-in{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.poster{position:relative;width:100%;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.poster img{display:block;width:100%;height:auto}
+.hs{position:absolute;border:0;background:transparent;cursor:pointer;padding:0}
+.hs .dot{position:absolute;right:2%;bottom:4%;width:22px;height:22px;border-radius:50%;background:var(--sol);border:3px solid var(--ink);animation:pulse 2s infinite}
+.hs.seen .dot{background:var(--verde);animation:none}
+.hs.sel{outline:4px dashed var(--sol);outline-offset:-4px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(242,180,25,.8)}70%{box-shadow:0 0 0 12px rgba(242,180,25,0)}100%{box-shadow:0 0 0 0 rgba(242,180,25,0)}}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.chip{flex:none;font-family:var(--display);font-size:.78rem;background:var(--kraft);color:var(--ink);border:0;padding:8px 11px;cursor:pointer;clip-path:polygon(2% 0,98% 6%,100% 94%,0 100%)}
+.chip.seen{background:var(--verde);color:var(--kraft)}
+.found{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top));transform:translateX(-50%) rotate(-1deg);z-index:12;background:var(--kraft);font-family:var(--hand);font-size:1.3rem;padding:4px 14px;box-shadow:3px 4px 0 rgba(0,0,0,.35);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.hs .dot{animation:none}}
+.top{position:fixed;top:calc(10px + env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));z-index:14;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
 .top>*{pointer-events:auto}
 .stamp{font-family:var(--display);font-size:.78rem;color:var(--kraft);background:rgba(29,59,42,.75);border:2px dashed var(--kraft);padding:4px 9px;transform:rotate(2deg);font-variant-numeric:tabular-nums}
 .head{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;background:var(--th,var(--verde));color:var(--tf,var(--kraft));padding:10px 12px}
@@ -78,10 +95,17 @@ select{font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);back
     <h1>COAHUILA</h1>
     <p>Apunta la cámara al cartel impreso. Sobre cada apartado aparecerán sus fotos; tócalas para ver los datos y escuchar el sonido del lugar.</p>
     <button class="go" id="go">Encender la cámara</button>
+    <button class="btn" id="nocam" style="align-self:flex-start">Explorar sin cámara</button>
     <p id="err" style="color:var(--barro);font-weight:700" hidden></p>
   </div>
 </div>
-<div class="top" id="top" hidden><span class="stamp" id="count">0/11 EXPLORADO</span><button class="btn v" id="vs">Coahuila vs. tu estado</button></div>
+<div class="top" id="top" hidden><span class="stamp" id="count">0/11 EXPLORADO</span><span style="display:flex;gap:6px"><button class="btn" id="ex">Explorar cartel</button><button class="btn v" id="vs">Comparar</button></span></div>
+<div class="found" id="found" hidden>¡Cartel detectado! Toca un apartado</div>
+<div class="explore" id="explore" hidden><div class="ex-in">
+  <div class="poster" id="poster"><img src="cartel.jpg" alt="Cartel de Coahuila"></div>
+  <div class="chips" id="chips"></div>
+  <button class="btn x" id="back">Volver a la cámara</button>
+</div></div>
 <div class="hint" id="hint" hidden>Apunta al cartel completo</div>
 
 <div class="ar" id="ar">
@@ -111,7 +135,7 @@ function build() {
   S.forEach(s => {
     const cx = (s.x + s.w / 2) / 100 - 0.5, cy = H / 2 - (s.y + s.h / 2) / 100 * H;
     const zone = document.createElement("a-plane");
-    zone.setAttribute("class", "clickable");
+    zone.setAttribute("class", "clickable"); zone.dataset.sec = s.id;
     zone.setAttribute("position", `${cx} ${cy} 0.005`);
     zone.setAttribute("width", s.w / 100);
     zone.setAttribute("height", s.h / 100 * H);
@@ -133,13 +157,13 @@ function build() {
     const frame = document.createElement("a-plane");
     frame.setAttribute("width", w + 0.02); frame.setAttribute("height", w * 0.75 + 0.02);
     frame.setAttribute("material", "color: #ffffff; shader: flat");
-    frame.setAttribute("class", "clickable");
+    frame.setAttribute("class", "clickable"); frame.dataset.sec = s.id;
     frame.addEventListener("click", () => open(s));
     const img = document.createElement("a-image");
     img.setAttribute("src", `#p-${s.id}-0`);
     img.setAttribute("width", w); img.setAttribute("height", w * 0.75);
     img.setAttribute("position", "0 0 0.002");
-    img.setAttribute("class", "clickable");
+    img.setAttribute("class", "clickable"); img.dataset.sec = s.id;
     img.addEventListener("click", () => open(s));
     card.appendChild(frame); card.appendChild(img);
     target.appendChild(card);
@@ -176,7 +200,7 @@ function open(s) {
   document.getElementById("close").onclick = closeSheet;
     document.getElementById("prev").onclick = () => open(S[(i - 1 + S.length) % S.length]);
   document.getElementById("next").onclick = () => open(S[(i + 1) % S.length]);
-  seen.add(s.id); document.getElementById("count").textContent = `${seen.size}/${S.length} EXPLORADO`;
+  markSeen(s); seen.add(s.id); document.getElementById("count").textContent = `${seen.size}/${S.length} EXPLORADO`;
   play(); sheetOpen();
 }
 function closeSheet() { document.getElementById("sheet").classList.add("off"); audio.pause(); clearTimeout(gt); }
@@ -215,7 +239,40 @@ function versus() {
 }
 document.getElementById("vs").onclick = versus;
 
-target.addEventListener("targetFound", () => { document.getElementById("hint").hidden = true; });
+// modo explorar: mismo cartel con puntos tocables y chips, sin depender de la cámara
+(function () {
+  const poster = document.getElementById("poster"), chips = document.getElementById("chips");
+  S.forEach(s => {
+    const b = document.createElement("button"); b.className = "hs"; b.setAttribute("aria-label", s.t);
+    Object.assign(b.style, { left: s.x + "%", top: s.y + "%", width: s.w + "%", height: s.h + "%" });
+    b.innerHTML = '<span class="dot"></span>'; b.onclick = () => open(s); poster.appendChild(b); s.hsEl = b;
+    const c = document.createElement("button"); c.className = "chip"; c.textContent = s.c; c.onclick = () => open(s); chips.appendChild(c); s.chipEl = c;
+  });
+})();
+function markSeen(s) {
+  S.forEach(x => x.hsEl && x.hsEl.classList.toggle("sel", x === s));
+  s.hsEl && s.hsEl.classList.add("seen"); s.chipEl && s.chipEl.classList.add("seen");
+}
+document.getElementById("nocam").onclick = () => { document.getElementById("intro").hidden = true; document.getElementById("top").hidden = false; document.getElementById("explore").hidden = false; };
+document.getElementById("ex").onclick = () => { document.getElementById("explore").hidden = false; closeSheet(); };
+document.getElementById("back").onclick = () => { document.getElementById("explore").hidden = true; closeSheet(); };
+
+// toques sobre el cartel en cámara: rayo propio además del cursor de A-Frame (más confiable en celular)
+(function () {
+  let downX = 0, downY = 0;
+  scene.addEventListener("pointerdown", e => { downX = e.clientX; downY = e.clientY; });
+  scene.addEventListener("pointerup", e => {
+    if (Math.hypot(e.clientX - downX, e.clientY - downY) > 12 || !scene.camera) return;
+    const r = scene.canvas.getBoundingClientRect();
+    const v = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    const ray = new THREE.Raycaster(); ray.setFromCamera(v, scene.camera);
+    const meshes = []; target.object3D.traverse(o => { if (o.isMesh && o.el && o.el.dataset.sec) meshes.push(o); });
+    const hit = ray.intersectObjects(meshes, false)[0];
+    if (hit) { const s = S.find(x => x.id === hit.object.el.dataset.sec); if (s && s !== cur) open(s); }
+  });
+})();
+
+target.addEventListener("targetFound", () => { document.getElementById("hint").hidden = true; const f = document.getElementById("found"); f.hidden = false; clearTimeout(f._t); f._t = setTimeout(() => f.hidden = true, 2500); });
 target.addEventListener("targetLost", () => { document.getElementById("hint").hidden = false; });
 
 // explica en palabras claras por qué no abrió la cámara
