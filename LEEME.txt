@@ -1,0 +1,37 @@
+CARTEL DE COAHUILA EN REALIDAD AUMENTADA
+========================================
+
+Que es cada archivo
+- index.html ......... la pagina de realidad aumentada
+- targets.mind ....... el "reconocimiento" del cartel (generado a partir de cartel.jpg)
+- datos.js ........... datos de cada apartado y lista de fotos
+- img/  snd/ ......... fotos y sonidos de cada apartado
+- mindar/ ............ libreria MindAR (no borrar)
+- hacer-qr.html ...... genera el QR pequeno con tu link
+- compilar.html ...... vuelve a generar targets.mind si cambias cartel.jpg
+- servidor.py ........ servidor para probar en tu computadora
+
+1) PROBAR EN TU COMPUTADORA (con camara web)
+   En esta carpeta ejecuta:   python servidor.py
+   Abre en el navegador:      http://localhost:8765
+   Toca "Encender la camara" y apunta la camara al cartel impreso
+   o al cartel abierto en la pantalla del celular.
+
+2) PUBLICAR GRATIS (la camara del celular exige un link https)
+   Opcion A - Netlify:
+     a. Entra a https://app.netlify.com/drop e inicia sesion (cuenta gratis).
+     b. Arrastra la carpeta "coahuila-ar" completa a la pagina.
+     c. Copia el link que te da (https://algo.netlify.app).
+   Opcion B - GitHub Pages:
+     a. Crea un repositorio, sube el contenido de esta carpeta.
+     b. Settings > Pages > Branch: main > Save.
+     c. Copia el link https://tuusuario.github.io/turepositorio/
+
+3) HACER EL QR PEQUENO
+   Abre hacer-qr.html, pega el link y guarda la imagen.
+   Imprimelo de 2.5 a 3 cm en una esquina del cartel.
+
+CONSEJOS
+- Imprime el cartel sin brillo (papel mate) para que no haya reflejos.
+- Con buena luz y el cartel completo en pantalla, el reconocimiento tarda 1-2 segundos.
+- Si cambias el diseno del cartel, reemplaza cartel.jpg y abre compilar.html con el servidor encendido.

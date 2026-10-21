@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Coahuila Aumentada</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Caveat:wght@600&family=Work+Sans:wght@400;600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js"></script>
+<script type="module" src="./mindar/mindar-image-aframe.prod.js"></script>
+<script src="./datos.js"></script>
+<style>
+/* Layout: cámara a pantalla completa; sobre el cartel flotan las fotos de cada apartado; la ficha sube desde abajo */
+:root{--kraft:#f2e8d3;--ink:#1d3b2a;--verde:#2f6b3a;--azul:#1f4fa3;--sol:#f2b419;--barro:#c8502e;
+  --display:"Bowlby One","Arial Black",Impact,sans-serif;--hand:"Caveat","Comic Sans MS",cursive;--body:"Work Sans",system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:var(--body);color:var(--ink)}
+a-scene{position:fixed;inset:0}
+.intro{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:var(--azul);
+  background-image:radial-gradient(rgba(255,255,255,.08) 1.2px,transparent 1.3px);background-size:9px 9px;
+  padding:max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left))}
+.card{background:var(--kraft);max-width:420px;width:100%;padding:24px 20px;display:flex;flex-direction:column;gap:14px;box-shadow:4px 6px 0 rgba(0,0,0,.35);
+  clip-path:polygon(0 2%,12% 0,26% 1.5%,40% 0,55% 2%,70% 0,85% 1.5%,100% 0,100% 98%,86% 100%,70% 98.5%,52% 100%,36% 98%,20% 100%,0 98.5%)}
+.card h1{font-family:var(--display);font-size:clamp(2.4rem,12vw,3.4rem);line-height:.9;margin:0}
+.tape{align-self:flex-start;background:var(--sol);font-family:var(--hand);font-size:1.4rem;padding:2px 12px;transform:rotate(-2deg)}
+.card p{margin:0;line-height:1.45}
+.go{font-family:var(--display);font-size:1.1rem;border:0;background:var(--barro);color:var(--kraft);padding:14px 18px;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.3)}
+.hint{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) rotate(-1.5deg);z-index:10;
+  background:var(--sol);font-family:var(--hand);font-size:1.5rem;padding:4px 16px;box-shadow:3px 4px 0 rgba(0,0,0,.35);white-space:nowrap}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:15;max-height:62vh;overflow-y:auto;background:var(--kraft);
+  padding:30px max(18px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));
+  clip-path:polygon(0 14px,6% 4px,13% 12px,21% 2px,30% 11px,38% 3px,47% 12px,55% 2px,64% 10px,72% 3px,81% 12px,89% 4px,100% 11px,100% 100%,0 100%);
+  transition:transform .3s ease}
+.sheet.off{transform:translateY(105%)}
+.in{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.cat{font-family:var(--hand);font-size:1.4rem;color:var(--barro)}
+.sheet h2{font-family:var(--display);font-size:clamp(1.4rem,6.5vw,2rem);line-height:.95;margin:0;text-transform:uppercase}
+.ph{position:relative;aspect-ratio:4/3;max-width:100%;overflow:hidden;background:#111;border:5px solid #fff}
+.ph .bg{position:absolute;inset:-24px;background-size:cover;background-position:center;filter:blur(18px) brightness(.65)}
+.ph img{position:relative;width:100%;height:100%;object-fit:contain;display:block}
+.pcap{font-family:var(--hand);font-size:1.2rem;margin:0}
+.facts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.facts li{background:#fff8e6;padding:8px 11px;border-left:6px solid var(--verde);line-height:1.4;font-size:.95rem}
+.orgullo{background:var(--ink);color:var(--sol);font-family:var(--hand);font-size:1.35rem;padding:7px 12px;transform:rotate(-1deg)}
+.row{display:flex;justify-content:space-between;gap:8px}
+.btn{font-family:var(--display);font-size:.8rem;border:0;background:var(--azul);color:var(--kraft);padding:10px 12px;cursor:pointer}
+.btn.x{background:var(--barro)}.btn.v{background:var(--verde)}
+.btn:focus-visible,.go:focus-visible{outline:3px dashed var(--sol);outline-offset:3px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){.sheet{transition:none}}
+</style>
+</head>
+<body>
+<div class="intro" id="intro">
+  <div class="card">
+    <span class="tape">Cartel vivo</span>
+    <h1>COAHUILA</h1>
+    <p>Apunta la cámara al cartel impreso. Sobre cada apartado aparecerán sus fotos; tócalas para ver los datos y escuchar el sonido del lugar.</p>
+    <button class="go" id="go">Encender la cámara</button>
+    <p id="err" style="color:var(--barro);font-weight:700" hidden></p>
+  </div>
+</div>
+<div class="hint" id="hint" hidden>Apunta al cartel completo</div>
+
+<a-scene id="scene" mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
+  color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false"
+  cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable">
+  <a-assets id="assets"></a-assets>
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+  <a-entity id="target" mindar-image-target="targetIndex: 0"></a-entity>
+</a-scene>
+
+<section class="sheet off" id="sheet" role="dialog" aria-modal="false" aria-labelledby="t">
+  <div class="in">
+    <span class="cat" id="c"></span>
+    <h2 id="t"></h2>
+    <div class="ph" id="ph"></div>
+    <p class="pcap" id="pc"></p>
+    <ul class="facts" id="f"></ul>
+    <div class="orgullo" id="o"></div>
+    <div class="row"><button class="btn x" id="close">Cerrar</button><button class="btn v" id="snd">Sonido</button><button class="btn" id="nextp">Otra foto →</button></div>
+  </div>
+</section>
+
+<script>
+// alto del cartel en unidades de la escena (ancho = 1)
+const H = 1491 / 1055;
+const scene = document.getElementById("scene"), target = document.getElementById("target");
+const audio = new Audio();
+let cur = null, pi = 0;
+
+// una zona tocable y una foto flotante por apartado
+function build() {
+  const assets = document.getElementById("assets");
+  S.forEach(s => {
+    const cx = (s.x + s.w / 2) / 100 - 0.5, cy = H / 2 - (s.y + s.h / 2) / 100 * H;
+    const zone = document.createElement("a-plane");
+    zone.setAttribute("class", "clickable");
+    zone.setAttribute("position", `${cx} ${cy} 0.005`);
+    zone.setAttribute("width", s.w / 100);
+    zone.setAttribute("height", s.h / 100 * H);
+    zone.setAttribute("material", "color: #f2b419; opacity: 0.12; transparent: true; side: double");
+    zone.addEventListener("click", () => open(s));
+    target.appendChild(zone);
+
+    const pics = PICS[s.id] || [];
+    pics.forEach((p, j) => {
+      const a = document.createElement("img");
+      a.id = `p-${s.id}-${j}`; a.src = p.f; a.crossOrigin = "anonymous";
+      assets.appendChild(a);
+    });
+    if (!pics.length) return;
+    const w = Math.min(0.26, s.w / 100 * 0.8);
+    const card = document.createElement("a-entity");
+    card.setAttribute("position", `${cx} ${cy} 0.06`);
+    card.setAttribute("animation", `property: position; to: ${cx} ${cy} 0.1; dir: alternate; loop: true; dur: 1600; easing: easeInOutSine`);
+    const frame = document.createElement("a-plane");
+    frame.setAttribute("width", w + 0.02); frame.setAttribute("height", w * 0.75 + 0.02);
+    frame.setAttribute("material", "color: #ffffff; shader: flat");
+    frame.setAttribute("class", "clickable");
+    frame.addEventListener("click", () => open(s));
+    const img = document.createElement("a-image");
+    img.setAttribute("src", `#p-${s.id}-0`);
+    img.setAttribute("width", w); img.setAttribute("height", w * 0.75);
+    img.setAttribute("position", "0 0 0.002");
+    img.setAttribute("class", "clickable");
+    img.addEventListener("click", () => open(s));
+    card.appendChild(frame); card.appendChild(img);
+    target.appendChild(card);
+    let k = 0;
+    setInterval(() => { k = (k + 1) % pics.length; img.setAttribute("src", `#p-${s.id}-${k}`); }, 3500);
+  });
+}
+
+function showPic() {
+  const pics = PICS[cur.id] || [], p = pics[pi];
+  const ph = document.getElementById("ph");
+  ph.hidden = !p; document.getElementById("pc").textContent = p ? p.cap : "";
+  if (p) ph.innerHTML = `<div class="bg" style="background-image:url('${p.f}')"></div><img src="${p.f}" alt="">`;
+  document.getElementById("nextp").hidden = pics.length < 2;
+}
+function play() { audio.src = `snd/${cur.id}.mp3`; audio.currentTime = 0; audio.play().catch(() => {}); }
+function open(s) {
+  cur = s; pi = 0;
+  document.getElementById("c").textContent = s.c;
+  document.getElementById("t").textContent = s.t;
+  document.getElementById("f").innerHTML = s.f.map(x => `<li>${x}</li>`).join("");
+  document.getElementById("o").textContent = s.o;
+  showPic(); play();
+  const sh = document.getElementById("sheet"); sh.classList.remove("off"); sh.scrollTop = 0;
+}
+document.getElementById("close").onclick = () => { document.getElementById("sheet").classList.add("off"); audio.pause(); };
+document.getElementById("snd").onclick = play;
+document.getElementById("nextp").onclick = () => { pi = (pi + 1) % PICS[cur.id].length; showPic(); };
+
+target.addEventListener("targetFound", () => { document.getElementById("hint").hidden = true; });
+target.addEventListener("targetLost", () => { document.getElementById("hint").hidden = false; });
+
+document.getElementById("go").onclick = async () => {
+  const err = document.getElementById("err");
+  try {
+    await new Promise(r => scene.hasLoaded ? r() : scene.addEventListener("loaded", r, { once: true }));
+    if (!target.children.length) build();
+    audio.src = "snd/desierto.mp3"; audio.volume = 0; audio.play().catch(() => {}).finally(() => { audio.pause(); audio.volume = 1; });
+    await scene.systems["mindar-image-system"].start();
+    document.getElementById("intro").hidden = true;
+    document.getElementById("hint").hidden = false;
+  } catch (e) {
+    err.hidden = false;
+    err.textContent = "No se pudo abrir la cámara. Revisa que diste permiso y que la página se abrió con https.";
+  }
+};
+</script>
+</body>
+</html>
