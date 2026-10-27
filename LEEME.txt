@@ -35,3 +35,9 @@ CONSEJOS
 - Imprime el cartel sin brillo (papel mate) para que no haya reflejos.
 - Con buena luz y el cartel completo en pantalla, el reconocimiento tarda 1-2 segundos.
 - Si cambias el diseno del cartel, reemplaza cartel.jpg y abre compilar.html con el servidor encendido.
+
+CREDITOS DE LOS MODELOS 3D
+- Triceratops y caballo: Quaternius (CC0), via poly.pizza
+- Uvas y carne asada: Kenney Food Kit (CC0), kenney.nl
+- Biznaga (Ferocactus wislizeni): Smithsonian Open Access (CC0), 3d.si.edu
+- Zopilote / buitre: "Turkey vulture" por Poly by Google (CC-BY 3.0), via poly.pizza
