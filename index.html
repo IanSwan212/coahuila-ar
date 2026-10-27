@@ -49,6 +49,14 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-famil
 .btn.x{background:var(--barro)}.btn.v{background:var(--verde)}
 .btn:focus-visible,.go:focus-visible{outline:3px dashed var(--sol);outline-offset:3px}
 [hidden]{display:none!important}
+.pop{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(10,20,15,.4)}
+.pop .box{width:min(84vw,420px);display:flex;flex-direction:column;align-items:center;gap:8px;animation:popin .6s cubic-bezier(.3,1.6,.5,1) both}
+.pop.out .box{animation:popout .45s ease-in forwards}
+.pop.out{transition:opacity .45s;opacity:0}
+.pop model-viewer{width:100%;aspect-ratio:1;background:radial-gradient(circle at 50% 45%,#fff8e6 0,#e9dcbd 55%,rgba(233,220,189,0) 72%);--poster-color:transparent}
+.pop .plab{background:var(--sol);font-family:var(--hand);font-size:1.45rem;padding:3px 14px;transform:rotate(-2deg);box-shadow:3px 4px 0 rgba(0,0,0,.3);text-align:center}
+@keyframes popin{0%{transform:scale(.2) translateY(40%);opacity:0}100%{transform:none;opacity:1}}
+@keyframes popout{to{transform:scale(.3) translateY(-30%);opacity:0}}
 .m3d{display:flex;flex-direction:column;gap:6px}
 .m3d model-viewer{width:100%;aspect-ratio:4/3;background:radial-gradient(circle at 50% 40%,#fff8e6,#d9c9a6);border:5px solid #fff;--poster-color:transparent}
 .m3d .lab{align-self:flex-start;font-family:var(--display);font-size:.8rem;background:var(--sol);padding:3px 9px;transform:rotate(-1.5deg)}
@@ -104,6 +112,7 @@ select{font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);back
   </div>
 </div>
 <div class="top" id="top" hidden><span class="stamp" id="count">0/11 EXPLORADO</span><span style="display:flex;gap:6px"><button class="btn" id="ex">Explorar cartel</button><button class="btn v" id="vs">Comparar</button></span></div>
+<div class="pop" id="pop" hidden><div class="box"><model-viewer id="pmv" camera-controls auto-rotate auto-rotate-delay="0" rotation-per-second="60deg" shadow-intensity="1" exposure="1.1" interaction-prompt="none" loading="eager" alt="Modelo 3D"></model-viewer><span class="plab" id="plab"></span></div></div>
 <div class="found" id="found" hidden>¡Cartel detectado! Toca un apartado</div>
 <div class="explore" id="explore" hidden><div class="ex-in">
   <div class="poster" id="poster"><img src="cartel.jpg" alt="Cartel de Coahuila"></div>
@@ -178,8 +187,17 @@ function build() {
 
 // modelos 3D reales (Smithsonian Open Access) para algunos apartados
 const MODELS = {
+  identidad: [{ src: "3d/town/cart.glb", name: "Carreta de hacienda, como las de la época de la Revolución" }],
+  catedral: [{ src: "3d/town/wall-arch.glb", name: "Arco de piedra, como los de la Catedral de Santiago" }],
+  cultura: [{ src: "3d/food/grapes.glb", name: "Uvas de Parras" }, { src: "3d/food/wine-red.glb", name: "Vino tinto, como el de Casa Madero" }],
   dinos: [{ src: "3d/triceratops.glb", name: "Triceratops, pariente del Coahuilaceratops" }, { src: "3d/mamut.glb", name: "Mamut, como el del Museo del Desierto" }],
-  desierto: [{ src: "3d/biznaga.glb", name: "Biznaga (Ferocactus wislizeni), cactus del desierto chihuahuense" }]
+  tradicion: [{ src: "3d/town/stall-red.glb", name: "Puesto de feria" }],
+  comida: [{ src: "3d/food/meat-ribs.glb", name: "Carne asada" }, { src: "3d/food/taco.glb", name: "Taco norteño" }, { src: "3d/food/loaf-round.glb", name: "Pan, como el pan de pulque" }],
+  etnias: [{ src: "3d/canasta.glb", name: "Canasta tejida a mano" }],
+  poblacion: [{ src: "3d/town/fountain-round-detail.glb", name: "Fuente de plaza, como las del centro de Saltillo" }],
+  desierto: [{ src: "3d/biznaga.glb", name: "Biznaga (Ferocactus wislizeni), cactus del desierto chihuahuense" }, { src: "3d/cactus_tall.glb", name: "Cactus del desierto" }],
+  escolaridad: [{ src: "3d/books.glb", name: "Libros" }, { src: "3d/laptop.glb", name: "Computadora" }],
+  reto: [{ src: "3d/pottedPlant.glb", name: "Lo que se cuida, crece" }]
 };
 // modelo flotando sobre el apartado en la cámara
 let floating = null;
@@ -202,6 +220,23 @@ function showFloating(s, m) {
   });
   target.appendChild(e); floating = e;
 }
+// pop-up del modelo 3D al abrir el apartado: salta, gira unos segundos y desaparece
+let popT = null;
+function hidePop() {
+  const pop = document.getElementById("pop");
+  if (pop.hidden) return;
+  pop.classList.add("out");
+  clearTimeout(popT); popT = setTimeout(() => { pop.hidden = true; pop.classList.remove("out"); showFloating(null, null); }, 450);
+}
+function popModel(s, m) {
+  const pop = document.getElementById("pop"), mv = document.getElementById("pmv");
+  clearTimeout(popT); pop.classList.remove("out"); pop.hidden = false;
+  const box = pop.querySelector(".box"); box.style.animation = "none"; void box.offsetWidth; box.style.animation = "";
+  mv.src = m.src; mv.alt = m.name; document.getElementById("plab").textContent = m.name;
+  showFloating(s, m);
+  popT = setTimeout(hidePop, 4000);
+}
+document.getElementById("pop").addEventListener("click", hidePop);
 // ficha completa del apartado, igual que en la versión interactiva
 const seen = new Set();
 let gt = null;
@@ -222,22 +257,16 @@ function open(s) {
     <div class="head"><span class="cat">${s.c}</span><span class="num">${String(i + 1).padStart(2, "0")} / ${S.length}</span></div>
     <h2>${s.t}</h2>
     ${pics.length ? `<div class="ph" id="ph"></div><div class="gnav" id="gn">${pics.map((_, j) => `<button data-j="${j}">Foto ${j + 1}</button>`).join("")}</div><p class="pcap" id="pc"></p>` : ""}
-    ${MODELS[s.id] ? `<div class="m3d"><span class="lab">Modelo 3D · gíralo con el dedo</span>
-      <model-viewer id="mv" src="${MODELS[s.id][0].src}" alt="${MODELS[s.id][0].name}" camera-controls auto-rotate touch-action="pan-y" shadow-intensity="1" exposure="1.1" loading="eager"></model-viewer>
-      <p class="pcap" id="mvn">${MODELS[s.id][0].name}</p>
-      ${MODELS[s.id].length > 1 ? `<div class="gnav" id="mvb">${MODELS[s.id].map((m, j) => `<button data-j="${j}" aria-current="${!j}">Modelo ${j + 1}</button>`).join("")}</div>` : ""}</div>` : ""}
+    ${MODELS[s.id] ? `<button class="btn" id="re3d" style="align-self:flex-start">Ver en 3D</button>` : ""}
     <ul class="facts">${s.f.map(x => `<li>${x}</li>`).join("")}</ul>
     <div class="orgullo">${s.o}</div>
     <div class="row"><button class="btn x" id="close">Cerrar</button><button class="btn v" id="snd">Sonido</button></div>
     <div class="row"><button class="btn" id="prev">← Anterior</button><button class="btn" id="next">Siguiente →</button></div>`;
   if (pics.length) { document.querySelectorAll("#gn button").forEach(b => b.onclick = () => go(+b.dataset.j)); go(0); }
-  showFloating(s, MODELS[s.id] && MODELS[s.id][0]);
-  document.querySelectorAll("#mvb button").forEach(b => b.onclick = () => {
-    const m = MODELS[s.id][+b.dataset.j];
-    document.getElementById("mv").src = m.src; document.getElementById("mvn").textContent = m.name;
-    document.querySelectorAll("#mvb button").forEach(x => x.setAttribute("aria-current", x === b));
-    showFloating(s, m);
-  });
+  if (MODELS[s.id]) popModel(s, MODELS[s.id][0]);
+  let mi = 0;
+  const r3 = document.getElementById("re3d");
+  if (r3) r3.onclick = () => { mi = (mi + 1) % MODELS[s.id].length; popModel(s, MODELS[s.id][mi]); };
   document.getElementById("close").onclick = closeSheet;
   document.getElementById("snd").onclick = play;
   document.getElementById("prev").onclick = () => open(S[(i - 1 + S.length) % S.length]);
@@ -245,7 +274,7 @@ function open(s) {
   markSeen(s); seen.add(s.id); document.getElementById("count").textContent = `${seen.size}/${S.length} EXPLORADO`;
   play(); sheetOpen();
 }
-function closeSheet() { document.getElementById("sheet").classList.add("off"); audio.pause(); clearTimeout(gt); showFloating(null, null); }
+function closeSheet() { document.getElementById("sheet").classList.add("off"); audio.pause(); clearTimeout(gt); hidePop(); }
 
 // Coahuila vs. tu estado, igual que en la versión interactiva
 function versus() {
