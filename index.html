@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js"></script>
 <script type="module" src="./mindar/mindar-image-aframe.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-<script src="./datos.js?v=19"></script>
+<script src="./datos.js?v=22"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <style>
 /* Layout: cámara a pantalla completa; sobre el cartel flotan las fotos de cada apartado; la ficha sube desde abajo */
@@ -121,14 +121,14 @@ select{font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);back
 <div class="pop" id="pop" hidden><div class="box"><img id="pimg" alt="" hidden><model-viewer id="pmv" camera-controls auto-rotate auto-rotate-delay="0" rotation-per-second="60deg" shadow-intensity="1" exposure="1.1" interaction-prompt="none" loading="eager" alt="Modelo 3D"></model-viewer><span class="plab" id="plab"></span><span class="pcred" id="pcred"></span></div></div>
 <div class="found" id="found" hidden>¡Cartel detectado! Toca un apartado</div>
 <div class="explore" id="explore" hidden><div class="ex-in">
-  <div class="poster" id="poster"><img src="cartel.jpg?v=19" alt="Cartel de Coahuila"></div>
+  <div class="poster" id="poster"><img src="cartel.jpg?v=22" alt="Cartel de Coahuila"></div>
   <div class="chips" id="chips"></div>
   <button class="btn x" id="back">Volver a la cámara</button>
 </div></div>
 <div class="hint" id="hint" hidden>Apunta al cartel completo</div>
 
 <div class="ar" id="ar">
-<a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=19; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
+<a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=22; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
   color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false"
   cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable">
   <a-assets id="assets"></a-assets>
@@ -144,7 +144,7 @@ select{font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);back
 
 <script>
 // alto del cartel en unidades de la escena (ancho = 1)
-const H = 2031 / 1055;
+const H = 2067 / 1055;
 const scene = document.getElementById("scene"), target = document.getElementById("target");
 const audio = new Audio();
 let cur = null, pi = 0;
@@ -152,6 +152,18 @@ let cur = null, pi = 0;
 // una zona tocable y una foto flotante por apartado
 function build() {
   const assets = document.getElementById("assets");
+  // tarjetas de la franja inferior: abren el apartado al que pertenecen
+  ZONES.forEach(z => {
+    const s = S.find(x => x.id === z.ref);
+    const zone = document.createElement("a-plane");
+    zone.setAttribute("class", "clickable"); zone.dataset.sec = z.ref;
+    zone.setAttribute("position", `${(z.x + z.w / 2) / 100 - 0.5} ${H / 2 - (z.y + z.h / 2) / 100 * H} 0.005`);
+    zone.setAttribute("width", z.w / 100);
+    zone.setAttribute("height", z.h / 100 * H);
+    zone.setAttribute("material", "color: #f2b419; opacity: 0.12; transparent: true; side: double");
+    zone.addEventListener("click", () => open(s));
+    target.appendChild(zone);
+  });
   S.forEach(s => {
     const cx = (s.x + s.w / 2) / 100 - 0.5, cy = H / 2 - (s.y + s.h / 2) / 100 * H;
     const zone = document.createElement("a-plane");
@@ -372,6 +384,12 @@ document.addEventListener("pointerdown", e => {
     Object.assign(b.style, { left: s.x + "%", top: s.y + "%", width: s.w + "%", height: s.h + "%" });
     b.innerHTML = '<span class="dot"></span>'; b.onclick = () => open(s); poster.appendChild(b); s.hsEl = b;
     const c = document.createElement("button"); c.className = "chip"; c.textContent = s.c; c.onclick = () => open(s); chips.appendChild(c); s.chipEl = c;
+  });
+  ZONES.forEach(z => {
+    const s = S.find(x => x.id === z.ref);
+    const b = document.createElement("button"); b.className = "hs"; b.setAttribute("aria-label", s.t);
+    Object.assign(b.style, { left: z.x + "%", top: z.y + "%", width: z.w + "%", height: z.h + "%" });
+    b.innerHTML = '<span class="dot"></span>'; b.onclick = () => open(s); poster.appendChild(b);
   });
 })();
 document.getElementById("count").textContent = `0/${S.length} EXPLORADO`;

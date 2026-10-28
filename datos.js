@@ -25,147 +25,25 @@ const K=[
 
 // --- cartel con franja "Coahuila en datos" ---
 // el cartel creció de 1491 a 2031 px de alto: se ajustan las zonas originales
-S.forEach(s => { s.y = +(s.y * 1491 / 2031).toFixed(2); s.h = +(s.h * 1491 / 2031).toFixed(2); });
-S.push(...[
- {
-  "id": "migracion",
-  "c": "Migración",
-  "th": "var(--verde)",
-  "t": "77 mil llegaron de otros estados",
-  "f": [
-   "Entre 2015 y 2020 llegaron unas <b>77 mil personas</b> de otras entidades (2.4% de la población)",
-   "Principales orígenes: <b>Veracruz</b> (15.7%), <b>Durango</b> (12.6%) y <b>Nuevo León</b> (11.6%)",
-   "Causas: reunirse con la familia <b>37.1%</b>, buscar trabajo <b>21.9%</b>, cambio u oferta de trabajo <b>15.1%</b>, estudiar <b>6.8%</b>",
-   "Intensidad migratoria hacia Estados Unidos: <b>baja</b> (CONAPO, 2020)"
-  ],
-  "o": "Coahuila atrae a quien busca trabajo y familia.",
-  "x": 2.84,
-  "y": 78.99,
-  "w": 22.46,
-  "h": 9.19,
-  "s": ""
- },
- {
-  "id": "inmigracion",
-  "c": "Inmigración",
-  "th": "var(--azul)",
-  "t": "0.9% nació en otro país",
-  "f": [
-   "<b>28,295 personas</b> nacidas en otro país viven en Coahuila (Censo 2020)",
-   "<b>21,791</b> nacieron en Estados Unidos (77%), 1,622 en Honduras y 660 en El Salvador",
-   "Municipios con más población nacida en otro país: <b>Piedras Negras</b> (6,769) y <b>Acuña</b> (5,383)",
-   "En 2010 eran 22,662: aumentaron <b>25%</b> en diez años"
-  ],
-  "o": "Frontera abierta al mundo.",
-  "x": 26.76,
-  "y": 78.99,
-  "w": 22.46,
-  "h": 9.19,
-  "s": ""
- },
- {
-  "id": "rural",
-  "c": "Zonas rurales",
-  "th": "var(--barro)",
-  "t": "8.3% vive en zonas rurales",
-  "f": [
-   "En 2020, <b>8.3%</b> vivía en localidades de menos de 2,500 habitantes; en 2000 era <b>10.6%</b>",
-   "<b>91.7%</b> vive en zonas urbanas y <b>71.2%</b> en ciudades de 100 mil habitantes o más",
-   "Hay <b>6 localidades</b> con más de 100 mil habitantes"
-  ],
-  "o": "Un estado cada vez más urbano.",
-  "x": 50.68,
-  "y": 78.99,
-  "w": 22.46,
-  "h": 9.19,
-  "s": ""
- },
- {
-  "id": "economia",
-  "c": "Actividades económicas",
-  "th": "var(--rosa)",
-  "t": "Una economía industrial",
-  "f": [
-   "Valor de la economía en 2024: <b>industria 50.7%</b>, <b>servicios 39.4%</b> y <b>campo 2.3%</b> (INEGI)",
-   "PIB 2024: <b>922,286 millones de pesos</b> (valores constantes)",
-   "<b>60 de cada 100</b> personas de 12 años y más son económicamente activas",
-   "Sobresalen las industrias manufactureras, en especial la automotriz, y la minería"
-  ],
-  "o": "Coahuila produce lo que mueve a México.",
-  "x": 74.6,
-  "y": 78.99,
-  "w": 22.46,
-  "h": 9.19,
-  "s": ""
- },
- {
-  "id": "analfabetismo",
-  "c": "Analfabetismo",
-  "th": "var(--verde)",
-  "t": "1.7% de analfabetismo",
-  "f": [
-   "La tasa bajó de <b>3.9%</b> en 2000 a <b>2.6%</b> en 2010 y a <b>1.7%</b> en 2020",
-   "De los estados con <b>menor analfabetismo</b> del país",
-   "Grado promedio de escolaridad: <b>10.4 años</b> (2020)"
-  ],
-  "o": "Casi todos saben leer y escribir.",
-  "x": 2.84,
-  "y": 89.04,
-  "w": 22.46,
-  "h": 9.19,
-  "s": ""
- },
- {
-  "id": "educativo",
-  "c": "Nivel educativo",
-  "th": "var(--azul)",
-  "t": "Nivel educativo",
-  "f": [
-   "Población de 15 años y más (2020): <b>secundaria 32.9%</b>, <b>bachillerato 20.4%</b>, <b>primaria 17.6%</b>",
-   "El grado promedio subió de <b>8.4 años</b> (2000) a <b>10.4</b> (2020)",
-   "<b>4.º lugar nacional</b>; la media del país es 9.7"
-  ],
-  "o": "Cada generación estudia más.",
-  "x": 26.76,
-  "y": 89.04,
-  "w": 22.46,
-  "h": 9.19,
-  "s": ""
- },
- {
-  "id": "suelo",
-  "c": "Suelo",
-  "th": "var(--barro)",
-  "t": "Tierra de matorral desértico",
-  "f": [
-   "El <b>matorral desértico</b> (rosetófilo y micrófilo) cubre cerca del <b>75%</b> del territorio",
-   "Pastizal <b>~8%</b>, agricultura <b>~5%</b> y asentamientos humanos apenas <b>0.05%</b> (INEGI, Serie V)",
-   "Predominan los <b>calcisoles, leptosoles y regosoles</b>: suelos delgados, pedregosos y ricos en calcio"
-  ],
-  "o": "Un desierto que sabe dar vida.",
-  "x": 50.68,
-  "y": 89.04,
-  "w": 22.46,
-  "h": 9.19,
-  "s": ""
- },
- {
-  "id": "fenomenos",
-  "c": "Fenómenos poblacionales",
-  "th": "var(--rosa)",
-  "t": "Cómo cambia la población",
-  "f": [
-   "<b>Crecimiento</b>: 1.4% anual entre 2010 y 2020",
-   "<b>Envejecimiento</b>: la edad mediana pasó de 23 años (2000) a 29 (2020)",
-   "<b>Menos hijos</b>: de 2.5 a 2.1 hijos por mujer",
-   "<b>Concentración urbana</b>: Saltillo (879,958) y Torreón (720,848) reúnen el 51% de la población",
-   "<b>Hogares más pequeños</b>: de 4.2 a 3.5 ocupantes por vivienda"
-  ],
-  "o": "Una población que crece, madura y se urbaniza.",
-  "x": 74.6,
-  "y": 89.04,
-  "w": 22.46,
-  "h": 9.19,
-  "s": ""
- }
-]);
+S.forEach(s => { s.y = +(s.y * 1491 / 2067).toFixed(2); s.h = +(s.h * 1491 / 2067).toFixed(2); });
+const EXTRA = {
+ "poblacion": [
+  "<b>Migración</b>: unas 77 mil personas llegaron de otros estados entre 2015 y 2020, sobre todo de Veracruz (15.7%), Durango (12.6%) y Nuevo León (11.6%)",
+  "<b>Causas de la migración</b>: reunirse con la familia 37.1%, buscar trabajo 21.9%, cambio u oferta de trabajo 15.1%, estudiar 6.8%",
+  "<b>Inmigración</b>: 28,295 personas nacieron en otro país (0.9%); 77% en Estados Unidos. Piedras Negras y Acuña concentran más",
+  "<b>Zonas rurales</b>: 8.3% vive en localidades de menos de 2,500 habitantes; 91.7% vive en zonas urbanas",
+  "<b>Actividades económicas</b>: industria 50.7%, servicios 39.4% y campo 2.3% del valor de la economía (2024); 60 de cada 100 personas de 12 años y más trabajan o buscan trabajo",
+  "<b>Fenómenos poblacionales</b>: crece 1.4% al año, la edad mediana pasó de 23 a 29 años, 2.1 hijos por mujer, y Saltillo y Torreón reúnen el 51% de la población"
+ ],
+ "escolaridad": [
+  "<b>Analfabetismo</b>: bajó de 3.9% en 2000 a 1.7% en 2020, de los más bajos del país",
+  "<b>Nivel educativo</b> (15 años y más, 2020): secundaria 32.9%, bachillerato 20.4%, primaria 17.6%"
+ ],
+ "desierto": [
+  "<b>Suelo</b>: el matorral desértico cubre cerca del 75% del territorio; pastizal ~8% y agricultura ~5%",
+  "Predominan los <b>calcisoles, leptosoles y regosoles</b>: suelos delgados, pedregosos y ricos en calcio"
+ ]
+};
+S.forEach(s => { if (EXTRA[s.id]) s.f = s.f.filter(x => !/Analfabetismo de|1\.66%/.test(x)).concat(EXTRA[s.id]); });
+// zonas extra: las tarjetas de la franja abren el apartado al que pertenecen
+const ZONES = [{"ref": "poblacion", "x": 2.84, "y": 77.62, "w": 22.46, "h": 9.84}, {"ref": "poblacion", "x": 26.76, "y": 77.62, "w": 22.46, "h": 9.84}, {"ref": "poblacion", "x": 50.68, "y": 77.62, "w": 22.46, "h": 9.84}, {"ref": "poblacion", "x": 74.6, "y": 77.62, "w": 22.46, "h": 9.84}, {"ref": "poblacion", "x": 2.84, "y": 88.29, "w": 22.46, "h": 9.84}, {"ref": "escolaridad", "x": 26.76, "y": 88.29, "w": 22.46, "h": 9.84}, {"ref": "escolaridad", "x": 50.68, "y": 88.29, "w": 22.46, "h": 9.84}, {"ref": "desierto", "x": 74.6, "y": 88.29, "w": 22.46, "h": 9.84}];
