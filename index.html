@@ -57,8 +57,11 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-famil
 .top2 .btn{font-size:.72rem;padding:8px 10px;box-shadow:2px 3px 0 rgba(0,0,0,.3)}
 /* mapa 3D */
 .mapa model-viewer{width:100%;height:min(62vh,440px);background:radial-gradient(circle at 50% 45%,#5d86c9,#1f4fa3);--poster-color:transparent}
-.pinmap{width:18px;height:18px;padding:0;border-radius:50%;background:var(--sol);border:3px solid var(--ink);cursor:pointer;box-shadow:2px 2px 0 rgba(0,0,0,.35);font-size:0;color:transparent}
-.pinmap[aria-pressed="true"]{width:auto;height:auto;padding:3px 8px;border-radius:999px;background:var(--barro);color:var(--kraft);font-family:var(--display);font-size:.66rem;white-space:nowrap;z-index:2}
+.pinmap{display:flex;align-items:center;gap:3px;padding:2px 6px 2px 2px;border-radius:999px;background:var(--kraft);border:2px solid var(--ink);cursor:pointer;box-shadow:2px 2px 0 rgba(0,0,0,.35);font-family:var(--display);font-size:.56rem;color:var(--ink);white-space:nowrap}
+.pinmap i{font-style:normal;font-size:.8rem;line-height:1;background:var(--sol);border-radius:50%;width:18px;height:18px;display:grid;place-items:center}
+.pinmap[aria-pressed="true"]{background:var(--barro);color:var(--kraft);z-index:2}
+.pinmap span{display:none}.pinmap[aria-pressed="true"] span{display:inline}.pinmap:not([aria-pressed="true"]){padding:2px}
+.vecino{font-family:var(--display);font-size:.6rem;letter-spacing:.06em;color:#6b6358;text-transform:uppercase;pointer-events:none;white-space:nowrap}
 .lugares{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
 .lugares button{flex:none;font-family:var(--display);font-size:.7rem;border:0;background:#fff8e6;color:var(--ink);padding:7px 10px;cursor:pointer}
 .lugares button[aria-pressed="true"]{background:var(--sol)}
@@ -395,8 +398,11 @@ function versus() {
 document.getElementById("vs").onclick = versus;
 
 // mapa 3D de Coahuila (contorno real) con sus lugares
-const MAPA_LUG = {"saltillo": ["Saltillo", "Capital del estado, fundada en 1577. Aquí están la Catedral de Santiago y el Museo del Desierto.", "catedral"], "arteaga": ["Arteaga", "Sierra de Arteaga: bosque de pino y nieve en invierno, a minutos de Saltillo.", "desierto"], "cepeda": ["General Cepeda", "Rincón Colorado, zona paleontológica donde se halló el Coahuilaceratops.", "dinos"], "parras": ["Parras", "Casa Madero (1597), la vinícola más antigua de América, y cuna de Francisco I. Madero (1873).", "cultura"], "torreon": ["Torreón", "Corazón de La Laguna: 720,848 habitantes (2020) y el Cristo de las Noas.", "poblacion"], "monclova": ["Monclova", "Ciudad del acero, con la Parroquia de Santiago Apóstol.", "poblacion"], "cienegas": ["Cuatro Ciénegas", "Pozas azules con estromatolitos en pleno desierto. Cuna de Venustiano Carranza (1859).", "desierto"], "muzquiz": ["Múzquiz", "Hogar de los kikapú y de los mascogos, llegados en 1852 a El Nacimiento.", "etnias"], "piedras": ["Piedras Negras", "Frontera con Eagle Pass, Texas. Es el municipio con más personas nacidas en otro país (6,769).", "poblacion"], "acuna": ["Ciudad Acuña", "Frontera con Del Río, Texas: 5,383 personas nacidas en otro país.", "poblacion"]};
-const MAPA_POS = {"saltillo": [0.314, 0.266, 0.664], "torreon": [-0.488, 0.213, 0.619], "monclova": [0.172, 0.156, 0.108], "piedras": [0.47, 0.114, -0.56], "acuna": [0.334, 0.12, -0.792], "parras": [-0.08, 0.259, 0.656], "cienegas": [-0.041, 0.171, 0.078], "muzquiz": [0.138, 0.144, -0.254], "arteaga": [0.361, 0.275, 0.652], "cepeda": [0.155, 0.253, 0.678]};
+const MAPA_LUG = {"saltillo": ["Saltillo", "Capital del estado, fundada en 1577. Aquí están la Catedral de Santiago y el Museo del Desierto.", "catedral"], "arteaga": ["Arteaga", "Sierra de Arteaga: bosque de pino y nieve en invierno, a minutos de Saltillo.", "desierto"], "cepeda": ["General Cepeda", "Rincón Colorado, zona paleontológica donde se halló el Coahuilaceratops.", "dinos"], "museo": ["Museo del Desierto", "En Saltillo: esqueletos de dinosaurios de Coahuila y el laboratorio que ha descrito 9 especies fósiles nuevas.", "dinos"], "parras": ["Parras", "Casa Madero (1597), la vinícola más antigua de América, y cuna de Francisco I. Madero (1873).", "cultura"], "torreon": ["Torreón", "Corazón de La Laguna: 720,848 habitantes (2020) y el Cristo de las Noas.", "poblacion"], "monclova": ["Monclova", "Ciudad del acero, con la Parroquia de Santiago Apóstol.", "poblacion"], "cienegas": ["Cuatro Ciénegas", "Pozas azules con estromatolitos en pleno desierto. Cuna de Venustiano Carranza (1859).", "desierto"], "muzquiz": ["Múzquiz", "Hogar de los kikapú y de los mascogos, llegados en 1852 a El Nacimiento.", "etnias"], "piedras": ["Piedras Negras", "Frontera con Eagle Pass, Texas. Es el municipio con más personas nacidas en otro país (6,769).", "poblacion"], "acuna": ["Ciudad Acuña", "Frontera con Del Río, Texas: 5,383 personas nacidas en otro país.", "poblacion"]};
+const MAPA_IC = {saltillo: "⛪", arteaga: "🌲", cepeda: "🦕", museo: "🦴", parras: "🍇", torreon: "🏙️", monclova: "🏭", cienegas: "💧", muzquiz: "🪶", piedras: "🌉", acuna: "🌉"};
+const MAPA_POS = {"saltillo": [0.314, 0.234, 0.664], "torreon": [-0.488, 0.191, 0.619], "monclova": [0.172, 0.144, 0.108], "piedras": [0.47, 0.11, -0.56], "acuna": [0.334, 0.115, -0.792], "parras": [-0.08, 0.228, 0.656], "cienegas": [-0.041, 0.157, 0.078], "muzquiz": [0.138, 0.134, -0.254], "arteaga": [0.361, 0.241, 0.652], "cepeda": [0.155, 0.223, 0.678], "museo": [0.321, 0.237, 0.667]};
+// estados vecinos: solo etiquetas de contexto
+const MAPA_VEC = {"Zacatecas": [0.044, 0.03, 0.993], "San Luis Potosí": [0.345, 0.03, 1.11], "Nuevo León": [0.644, 0.03, 0.494], "Durango": [-0.735, 0.03, 0.687], "Chihuahua": [-0.767, 0.03, -0.426], "Texas (EUA)": [0.112, 0.03, -0.896]};
 let mapFloat = null;
 function floatMap(show) {
   if (mapFloat) { mapFloat.parentNode && mapFloat.parentNode.removeChild(mapFloat); mapFloat = null; }
@@ -407,17 +413,18 @@ function floatMap(show) {
   e.setAttribute("rotation", "90 0 0");
   e.setAttribute("animation__in", "property: scale; from: 0.01 0.01 0.01; to: 0.2 0.2 0.2; dur: 900; easing: easeOutBack");
   e.setAttribute("animation__up", `property: position; to: ${0.88 - 0.5} ${H / 2 - 0.26 * H} 0.16; dur: 900; easing: easeOutQuad`);
-  e.setAttribute("gltf-model", "3d/coahuila-mapa.glb?v=34");
+  e.setAttribute("gltf-model", "3d/coahuila-mapa.glb?v=36");
   target.appendChild(e); mapFloat = e;
 }
 function mapa() {
   cur = null; audio.pause(); clearTimeout(gt); hidePop();
   const sh = document.getElementById("sheet"); sh.style.setProperty("--th", "var(--verde)"); sh.style.setProperty("--tf", "var(--kraft)");
   document.getElementById("body").innerHTML = `
-    <div class="head"><span class="cat">Mapa 3D</span><span class="num">10 lugares</span></div>
+    <div class="head"><span class="cat">Mapa 3D</span><span class="num">11 lugares</span></div>
     <h2>Recorre Coahuila</h2>
-    <div class="mapa"><model-viewer id="mmv" src="3d/coahuila-mapa.glb?v=34" camera-controls touch-action="pan-y" camera-orbit="0deg 42deg 105%" shadow-intensity="1" exposure="0.95" interaction-prompt="none" alt="Mapa 3D de Coahuila">
-      ${Object.entries(MAPA_POS).map(([k, p]) => `<button class="pinmap" slot="hotspot-${k}" data-position="${p.join(" ")}" data-normal="0 1 0" data-k="${k}">${MAPA_LUG[k][0]}</button>`).join("")}
+    <div class="mapa"><model-viewer id="mmv" src="3d/coahuila-mapa.glb?v=36" camera-controls touch-action="pan-y" camera-orbit="0deg 42deg 105%" shadow-intensity="1" exposure="0.95" interaction-prompt="none" alt="Mapa 3D de Coahuila">
+      ${Object.entries(MAPA_POS).map(([k, p]) => `<button class="pinmap" slot="hotspot-${k}" data-position="${p.join(" ")}" data-normal="0 1 0" data-k="${k}"><i>${MAPA_IC[k] || "•"}</i><span>${MAPA_LUG[k][0]}</span></button>`).join("")}
+      ${Object.entries(MAPA_VEC).map(([n, p], i) => `<div class="vecino" slot="hotspot-v${i}" data-position="${p.join(" ")}" data-normal="0 1 0">${n}</div>`).join("")}
     </model-viewer></div>
     <div class="lugares" id="lugares">${Object.keys(MAPA_POS).map(k => `<button data-k="${k}">${MAPA_LUG[k][0]}</button>`).join("")}</div>
     <div class="lugar" id="lugar">Toca un punto del mapa o un lugar de la lista. Gira y acerca el mapa con los dedos.</div>
