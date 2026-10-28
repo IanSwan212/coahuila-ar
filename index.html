@@ -471,8 +471,8 @@ function linea() {
   document.getElementById("body").innerHTML = `
     <div class="head"><span class="cat">Línea del tiempo</span><span class="num">1577 – 2020</span></div>
     <h2>Coahuila a través del tiempo</h2>
-    <video class="anim" id="vanim" src="linea-tiempo.mp4?v=34" controls playsinline preload="metadata" crossorigin="anonymous"></video>
-    <p class="pcap">Animación generada · música: Jarabe Pateño (Estado de Coahuila), disco de 78 rpm</p>
+    <video class="anim" id="vanim" src="linea-tiempo.mp4?v=35" controls playsinline preload="metadata" crossorigin="anonymous"></video>
+    <p class="pcap">De mar a desierto: 73 millones de años de Coahuila</p>
     <p class="small">Desliza hacia abajo: cada momento aparece al llegar a él.</p>
     <ol class="linea" id="linea">${HITOS.map((h, i) => { const pic = (PICS[h[4]] || [])[h[5]];
       return `<li><button class="hito" data-sec="${h[3]}" data-y="${h[0]}" data-prev="${i ? HITOS[i - 1][0] : 1500}"><span><span class="anio">${h[0]}</span><b>${h[1]}</b>${h[2]}</span>${pic ? `<img src="${pic.f}" alt="">` : ""}</button></li>`; }).join("")}</ol>
