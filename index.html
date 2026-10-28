@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js"></script>
 <script type="module" src="./mindar/mindar-image-aframe.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-<script src="./datos.js?v=30"></script>
+<script src="./datos.js?v=31"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <style>
 /* Layout: cámara a pantalla completa; sobre el cartel flotan las fotos de cada apartado; la ficha sube desde abajo */
@@ -65,9 +65,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-famil
 .lugar{background:#fff8e6;border-left:6px solid var(--sol);padding:9px 12px;line-height:1.4;min-height:3.2em}
 /* línea del tiempo */
 .linea{list-style:none;margin:0;padding:0 0 0 22px;position:relative;display:flex;flex-direction:column;gap:12px}
-.linea::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:4px;background:repeating-linear-gradient(var(--ink) 0 10px,transparent 10px 16px)}
+.linea::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:4px;background:repeating-linear-gradient(var(--ink) 0 10px,transparent 10px 16px);opacity:.25}
+.linea::after{content:"";position:absolute;left:8px;top:6px;width:4px;height:calc((100% - 12px) * var(--prog,0));background:var(--barro);transition:height .2s linear}
 .hito{position:relative;background:#fff8e6;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;cursor:pointer;border:0;text-align:left;font:inherit;color:inherit;width:100%;
-  opacity:0;transform:translateX(-18px) rotate(-1deg);animation:hitoin .5s cubic-bezier(.3,1.4,.5,1) forwards;box-shadow:2px 3px 0 rgba(0,0,0,.2)}
+  opacity:0;transform:translateX(-30px) rotate(-3deg) scale(.92);box-shadow:2px 3px 0 rgba(0,0,0,.2)}
+.hito.vis{animation:hitoin .6s cubic-bezier(.3,1.4,.5,1) forwards}
+.hito img{transform:scale(.4) rotate(-12deg);transition:transform .6s cubic-bezier(.3,1.6,.5,1) .2s}
+.hito.vis img{transform:none}
 .hito::before{content:"";position:absolute;left:-19px;top:16px;width:14px;height:14px;border-radius:50%;background:var(--sol);border:3px solid var(--ink)}
 .hito:nth-child(even){transform:translateX(-18px) rotate(1deg)}
 @keyframes hitoin{to{opacity:1;transform:none}}
@@ -75,7 +79,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-famil
 .hito .anio{font-family:var(--display);font-size:1.5rem;line-height:1;color:var(--barro)}
 .hito b{display:block;margin:2px 0}
 .hito img{width:64px;height:64px;object-fit:cover;border:3px solid #fff;box-shadow:1px 2px 0 rgba(0,0,0,.25)}
-@media (prefers-reduced-motion:reduce){.hito{animation:none;opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.hito{animation:none!important;opacity:1;transform:none}.hito img{transform:none}}
 .pop{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(10,20,15,.4)}
 .pop .box{width:min(84vw,420px);display:flex;flex-direction:column;align-items:center;gap:8px;animation:popin .6s cubic-bezier(.3,1.6,.5,1) both}
 .pop.out .box{animation:popout .45s ease-in forwards}
@@ -145,14 +149,14 @@ select{font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);back
 <div class="top2" id="top2" hidden><button class="btn x" id="bmapa">Mapa 3D</button><button class="btn" id="blinea">Línea del tiempo</button></div>
 <div class="found" id="found" hidden>¡Cartel detectado! Toca un apartado</div>
 <div class="explore" id="explore" hidden><div class="ex-in">
-  <div class="poster" id="poster"><img src="cartel.jpg?v=30" alt="Cartel de Coahuila"></div>
+  <div class="poster" id="poster"><img src="cartel.jpg?v=31" alt="Cartel de Coahuila"></div>
   <div class="chips" id="chips"></div>
   <button class="btn x" id="back">Volver a la cámara</button>
 </div></div>
 <div class="hint" id="hint" hidden>Apunta al cartel completo</div>
 
 <div class="ar" id="ar">
-<a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=30; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
+<a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=31; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
   color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false"
   cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable">
   <a-assets id="assets"></a-assets>
@@ -335,7 +339,7 @@ function open(s) {
   markSeen(s); seen.add(s.id); document.getElementById("count").textContent = `${seen.size}/${S.length} EXPLORADO`;
   play(); sheetOpen();
 }
-function closeSheet() { document.getElementById("sheet").classList.add("off"); audio.pause(); clearTimeout(gt); hidePop(); typeof floatMap === "function" && floatMap(false); }
+function closeSheet() { document.getElementById("sheet").classList.add("off"); audio.pause(); clearTimeout(gt); hidePop(); typeof floatMap === "function" && floatMap(false); typeof lineaAR === "function" && lineaAR(false); if (typeof tourT !== "undefined" && tourT) { clearTimeout(tourT); tourT = null; } const va = document.getElementById("vanim"); if (va) va.pause(); }
 
 // Coahuila vs. tu estado, igual que en la versión interactiva
 function versus() {
@@ -384,7 +388,7 @@ function floatMap(show) {
   e.setAttribute("rotation", "90 0 0");
   e.setAttribute("animation__in", "property: scale; from: 0.01 0.01 0.01; to: 0.2 0.2 0.2; dur: 900; easing: easeOutBack");
   e.setAttribute("animation__up", `property: position; to: ${0.88 - 0.5} ${H / 2 - 0.26 * H} 0.16; dur: 900; easing: easeOutQuad`);
-  e.setAttribute("gltf-model", "3d/coahuila-mapa.glb?v=30");
+  e.setAttribute("gltf-model", "3d/coahuila-mapa.glb?v=31");
   target.appendChild(e); mapFloat = e;
 }
 function mapa() {
@@ -393,12 +397,13 @@ function mapa() {
   document.getElementById("body").innerHTML = `
     <div class="head"><span class="cat">Mapa 3D</span><span class="num">10 lugares</span></div>
     <h2>Recorre Coahuila</h2>
-    <div class="mapa"><model-viewer id="mmv" src="3d/coahuila-mapa.glb?v=30" camera-controls touch-action="pan-y" camera-orbit="0deg 42deg 105%" shadow-intensity="1" exposure="0.95" interaction-prompt="none" alt="Mapa 3D de Coahuila">
+    <div class="mapa"><model-viewer id="mmv" src="3d/coahuila-mapa.glb?v=31" camera-controls touch-action="pan-y" camera-orbit="0deg 42deg 105%" shadow-intensity="1" exposure="0.95" interaction-prompt="none" alt="Mapa 3D de Coahuila">
       ${Object.entries(MAPA_POS).map(([k, p]) => `<button class="pinmap" slot="hotspot-${k}" data-position="${p.join(" ")}" data-normal="0 1 0" data-k="${k}">${MAPA_LUG[k][0]}</button>`).join("")}
     </model-viewer></div>
     <div class="lugares" id="lugares">${Object.keys(MAPA_POS).map(k => `<button data-k="${k}">${MAPA_LUG[k][0]}</button>`).join("")}</div>
     <div class="lugar" id="lugar">Toca un punto del mapa o un lugar de la lista. Gira y acerca el mapa con los dedos.</div>
-    <div class="row"><button class="btn x" id="close">Cerrar</button><button class="btn" id="irsec" hidden>Ver apartado →</button></div>`;
+    <div class="row"><button class="btn x" id="close">Cerrar</button><button class="btn v" id="tour">▶ Recorrido histórico</button><button class="btn" id="irsec" hidden>Ver apartado →</button></div>`;
+  document.getElementById("tour").onclick = () => recorrido();
   document.querySelectorAll(".pinmap, #lugares button").forEach(b => b.onclick = () => {
     const k = b.dataset.k, [n, txt, sec] = MAPA_LUG[k];
     document.querySelectorAll(".pinmap, #lugares button").forEach(x => x.setAttribute("aria-pressed", x.dataset.k === k));
@@ -410,19 +415,67 @@ function mapa() {
 }
 // línea del tiempo: los hitos aparecen uno por uno; cada uno abre su apartado
 const HITOS = [[1577, "Se funda Saltillo", "Nace la capital del estado.", "catedral", "poblacion", 0], [1597, "Nace Casa Madero", "En Parras: la vinícola más antigua de América.", "cultura", "cultura", 3], [1745, "Comienza la Catedral de Santiago", "Se bendice en 1800; su torre mide 81 m.", "catedral", "catedral", 1], [1852, "Llegan los mascogos", "Se asientan en El Nacimiento, Múzquiz, huyendo de la esclavitud.", "etnias", "etnias", 0], [1859, "Nace Venustiano Carranza", "En Cuatro Ciénegas.", "identidad", "identidad", 5], [1873, "Nace Francisco I. Madero", "En Parras de la Fuente.", "identidad", "identidad", 4], [1913, "Plan de Guadalupe", "Se firma en Ramos Arizpe e inicia el movimiento constitucionalista.", "identidad", "identidad", 0], [1923, "Nace la Antonio Narro", "Escuela de agricultura que hoy es la UAAAN, en Saltillo.", "escolaridad", "escolaridad", 1], [2007, "Se describe el Velafrons", "Hadrosaurio hallado cerca de Saltillo.", "dinos", "dinos", 0], [2010, "Se describe el Coahuilaceratops", "Primer dinosaurio con cuernos nombrado en México.", "dinos", "dinos", 1], [2020, "Censo: 3,146,771 habitantes", "91.7% vive en ciudades; escolaridad de 10.4 años.", "poblacion", "poblacion", 0]];
+// recorrido: la cámara vuela sobre el relieve real de lugar en lugar contando cada hito
+const HITO_LUGAR = ["saltillo", "parras", "saltillo", "muzquiz", "cienegas", "parras", "saltillo", "saltillo", "saltillo", "cepeda", null];
+let tourT = null;
+function recorrido() {
+  const mv = document.getElementById("mmv"), box = document.getElementById("lugar"), btn = document.getElementById("tour");
+  if (!mv) return;
+  if (tourT) { clearTimeout(tourT); tourT = null; btn.textContent = "▶ Recorrido histórico"; mv.cameraTarget = "auto auto auto"; mv.cameraOrbit = "0deg 42deg 105%"; return; }
+  btn.textContent = "■ Detener";
+  mv.interpolationDecay = 180;
+  let i = 0;
+  const paso = () => {
+    if (!document.getElementById("mmv")) { tourT = null; return; }
+    if (i >= HITOS.length) { tourT = null; btn.textContent = "▶ Recorrido histórico"; mv.cameraTarget = "auto auto auto"; mv.cameraOrbit = "0deg 42deg 105%"; return; }
+    const h = HITOS[i], k = HITO_LUGAR[i];
+    if (k) { const p = MAPA_POS[k]; mv.cameraTarget = `${p[0]}m ${p[1]}m ${p[2]}m`; mv.cameraOrbit = `${-40 + i * 37}deg 58deg 0.9m`; }
+    else { mv.cameraTarget = "auto auto auto"; mv.cameraOrbit = `${i * 37}deg 40deg 105%`; }
+    document.querySelectorAll(".pinmap, #lugares button").forEach(x => x.setAttribute("aria-pressed", x.dataset.k === k));
+    box.innerHTML = `<span class="anio" style="font-family:var(--display);font-size:1.6rem;color:var(--barro)">${h[0]}</span><br><b>${h[1]}</b><br>${h[2]}`;
+    i++; tourT = setTimeout(paso, 4200);
+  };
+  paso();
+}
+// línea del tiempo animada sobre el cartel en la cámara
+let lineaVid = null;
+function lineaAR(show) {
+  if (lineaVid) { lineaVid.parentNode && lineaVid.parentNode.removeChild(lineaVid); lineaVid = null; }
+  if (!show || !window.camOn) return;
+  const v = document.getElementById("vanim"); if (!v) return;
+  const e = document.createElement("a-video");
+  e.setAttribute("src", "#vanim"); e.setAttribute("width", 0.5); e.setAttribute("height", 0.889);
+  e.setAttribute("position", `0 0 0.12`);
+  e.setAttribute("animation__in", "property: scale; from: 0.01 0.01 0.01; to: 1 1 1; dur: 800; easing: easeOutBack");
+  target.appendChild(e); lineaVid = e;
+}
 function linea() {
   cur = null; audio.pause(); clearTimeout(gt); hidePop(); floatMap(false);
   const sh = document.getElementById("sheet"); sh.style.setProperty("--th", "var(--barro)"); sh.style.setProperty("--tf", "var(--kraft)");
   document.getElementById("body").innerHTML = `
     <div class="head"><span class="cat">Línea del tiempo</span><span class="num">1577 – 2020</span></div>
     <h2>Coahuila a través del tiempo</h2>
-    <video class="anim" src="linea-tiempo.mp4?v=30" controls playsinline preload="metadata" poster=""></video>
+    <video class="anim" id="vanim" src="linea-tiempo.mp4?v=31" controls playsinline preload="metadata" crossorigin="anonymous"></video>
     <p class="pcap">Animación generada · música: Jarabe Pateño (Estado de Coahuila), disco de 78 rpm</p>
-    <ol class="linea">${HITOS.map((h, i) => { const pic = (PICS[h[4]] || [])[h[5]];
-      return `<li><button class="hito" data-sec="${h[3]}" style="animation-delay:${0.15 + i * 0.28}s"><span><span class="anio">${h[0]}</span><b>${h[1]}</b>${h[2]}</span>${pic ? `<img src="${pic.f}" alt="">` : ""}</button></li>`; }).join("")}</ol>
+    <p class="small">Desliza hacia abajo: cada momento aparece al llegar a él.</p>
+    <ol class="linea" id="linea">${HITOS.map((h, i) => { const pic = (PICS[h[4]] || [])[h[5]];
+      return `<li><button class="hito" data-sec="${h[3]}" data-y="${h[0]}" data-prev="${i ? HITOS[i - 1][0] : 1500}"><span><span class="anio">${h[0]}</span><b>${h[1]}</b>${h[2]}</span>${pic ? `<img src="${pic.f}" alt="">` : ""}</button></li>`; }).join("")}</ol>
     <div class="row"><button class="btn x" id="close">Cerrar</button></div>`;
   document.querySelectorAll(".hito").forEach(b => b.onclick = () => open(S.find(s => s.id === b.dataset.sec)));
   document.getElementById("close").onclick = closeSheet;
+  // en vivo: cada hito entra y su año corre cuando aparece al deslizar; la línea se dibuja según el avance
+  const io = new IntersectionObserver(es => es.forEach(en => {
+    if (!en.isIntersecting || en.target.classList.contains("vis")) return;
+    const b = en.target, a = b.querySelector(".anio"), y1 = +b.dataset.y, y0 = +b.dataset.prev, t0 = performance.now();
+    b.classList.add("vis");
+    (function f(n) { const p = Math.min(1, (n - t0) / 900); a.textContent = Math.round(y0 + (y1 - y0) * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(f); })(t0);
+  }), { root: sh, threshold: 0.4 });
+  document.querySelectorAll(".hito").forEach(b => io.observe(b));
+  const lin = document.getElementById("linea");
+  const prog = () => { const r = lin.getBoundingClientRect(), vh = sh.getBoundingClientRect().bottom; lin.style.setProperty("--prog", Math.max(0, Math.min(1, (vh - r.top) / r.height))); };
+  sh.onscroll = prog; prog();
+  const v = document.getElementById("vanim");
+  v.onplay = () => lineaAR(true);
   sheetOpen();
 }
 document.getElementById("bmapa").onclick = mapa;
@@ -515,6 +568,7 @@ if (inApp) fail("Estás dentro de una app (WhatsApp, Instagram, Facebook o un le
 
 scene.addEventListener("arError", () => fail("La cámara se abrió pero no pudo iniciar el video. Cierra otras apps que usen la cámara y vuelve a intentar."));
 scene.addEventListener("arReady", () => {
+  window.camOn = true;
   document.getElementById("intro").hidden = true;
   document.getElementById("hint").hidden = false;
   document.getElementById("top").hidden = false; document.getElementById("top2").hidden = false;
