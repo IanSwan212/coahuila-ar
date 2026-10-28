@@ -46,3 +46,10 @@ const EXTRA = {
 S.forEach(s => { if (EXTRA[s.id]) s.f = s.f.filter(x => !/Analfabetismo de|1\.66%/.test(x)).concat(EXTRA[s.id]); });
 // zonas extra: las tarjetas de la franja abren el apartado al que pertenecen
 const ZONES = [];
+
+// más indicadores para el comparador: pobreza extrema (CONEVAL 2022) y densidad (habitantes por km², INEGI 2020)
+const PEXT = {"Chiapas":28.2,"Guerrero":22.2,"Oaxaca":20.2,"Veracruz":13.1,"Puebla":11.4,"Tabasco":11.2,"Campeche":9.6,"Michoacán":7.5,"San Luis Potosí":7.4,"Hidalgo":6.8,"Tlaxcala":6.8,"Nayarit":6.4,"Durango":6.3,"Estado de México":6.0,"Morelos":5.8,"Yucatán":5.6,"Zacatecas":5.1,"Quintana Roo":4.2,"Guanajuato":3.2,"Tamaulipas":2.9,"Jalisco":2.1,"Chihuahua":2.1,"Sinaloa":1.8,"Coahuila":1.8,"Aguascalientes":1.8,"Querétaro":1.7,"Ciudad de México":1.7,"Sonora":1.7,"Baja California":1.3,"Colima":1.2,"Nuevo León":1.1,"Baja California Sur":0.8};
+E.forEach(e => { e[7] = PEXT[e[0]]; e[8] = e[3] / e[2]; });
+K.splice(4, 0,
+  { i: 7, l: "Pobreza extrema", src: "CONEVAL, 2022", low: true, f: v => v.toFixed(1) + "%" },
+  { i: 8, l: "Densidad de población", src: "INEGI, 2020", neutral: true, f: v => Math.round(v).toLocaleString("es-MX") + " hab/km²" });
