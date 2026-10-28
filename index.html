@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js"></script>
 <script type="module" src="./mindar/mindar-image-aframe.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-<script src="./datos.js?v=33"></script>
+<script src="./datos.js?v=34"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <style>
 /* Layout: cámara a pantalla completa; sobre el cartel flotan las fotos de cada apartado; la ficha sube desde abajo */
@@ -99,6 +99,22 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-famil
   padding:calc(58px + env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
 .ex-in{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .poster{position:relative;width:100%;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+/* animaciones del cartel en pantalla (animaciones.js): entrada por capas, 3D al mover y linterna */
+.poster{transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transform-style:preserve-3d;transition:transform .35s cubic-bezier(.2,.8,.3,1)}
+.poster img{transition:filter .9s ease}
+.poster.anim-base img{filter:grayscale(.85) brightness(.5) blur(1.5px)}
+.anim-capas{position:absolute;inset:0;pointer-events:none;transform-style:preserve-3d}
+.anim-pieza{position:absolute;background-repeat:no-repeat;opacity:0;transform:translateZ(70px) translateY(18px) scale(.9);
+  transition:opacity .45s ease,transform .6s cubic-bezier(.2,1.35,.4,1),filter .9s ease,box-shadow .3s ease}
+.anim-pieza.on{opacity:1;transform:none}
+.anim-pieza.on-titulo{opacity:1;transform:none;transition:opacity .3s ease,transform .8s cubic-bezier(.2,1.6,.4,1),filter .9s ease}
+.anim-pieza:not(.on):not(.on-titulo).titulo{transform:scale(1.35)}
+.poster.anim-oscuro .anim-pieza{filter:brightness(.62) saturate(.55)}
+.anim-pieza.alto{transform:translateZ(30px) scale(1.025);box-shadow:0 18px 30px rgba(0,0,0,.45);z-index:1}
+.anim-luz{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .4s ease;
+  background:radial-gradient(circle at var(--lx,50%) var(--ly,50%),rgba(255,236,200,.32) 0,rgba(255,236,200,.1) 16%,rgba(10,18,14,.22) 42%);transform:translateZ(31px)}
+.poster .hs{transform:translateZ(40px)}
+@media (prefers-reduced-motion:reduce){.poster,.anim-pieza{transition:none;transform:none}.anim-luz{display:none}}
 .poster img{display:block;width:100%;height:auto}
 .hs{position:absolute;border:0;background:transparent;cursor:pointer;padding:0}
 .hs .dot{position:absolute;right:2%;bottom:4%;width:22px;height:22px;border-radius:50%;background:var(--sol);border:3px solid var(--ink);animation:pulse 2s infinite}
@@ -149,14 +165,14 @@ select{font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);back
 <div class="top2" id="top2" hidden><button class="btn x" id="bmapa">Mapa 3D</button><button class="btn" id="blinea">Línea del tiempo</button></div>
 <div class="found" id="found" hidden>¡Cartel detectado! Toca un apartado</div>
 <div class="explore" id="explore" hidden><div class="ex-in">
-  <div class="poster" id="poster"><img src="cartel.jpg?v=33" alt="Cartel de Coahuila"></div>
+  <div class="poster" id="poster"><img src="cartel.jpg?v=34" alt="Cartel de Coahuila"></div>
   <div class="chips" id="chips"></div>
   <button class="btn x" id="back">Volver a la cámara</button>
 </div></div>
 <div class="hint" id="hint" hidden>Apunta al cartel completo</div>
 
 <div class="ar" id="ar">
-<a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=33; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
+<a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=34; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
   color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false"
   cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable">
   <a-assets id="assets"></a-assets>
@@ -388,7 +404,7 @@ function floatMap(show) {
   e.setAttribute("rotation", "90 0 0");
   e.setAttribute("animation__in", "property: scale; from: 0.01 0.01 0.01; to: 0.2 0.2 0.2; dur: 900; easing: easeOutBack");
   e.setAttribute("animation__up", `property: position; to: ${0.88 - 0.5} ${H / 2 - 0.26 * H} 0.16; dur: 900; easing: easeOutQuad`);
-  e.setAttribute("gltf-model", "3d/coahuila-mapa.glb?v=33");
+  e.setAttribute("gltf-model", "3d/coahuila-mapa.glb?v=34");
   target.appendChild(e); mapFloat = e;
 }
 function mapa() {
@@ -397,7 +413,7 @@ function mapa() {
   document.getElementById("body").innerHTML = `
     <div class="head"><span class="cat">Mapa 3D</span><span class="num">10 lugares</span></div>
     <h2>Recorre Coahuila</h2>
-    <div class="mapa"><model-viewer id="mmv" src="3d/coahuila-mapa.glb?v=33" camera-controls touch-action="pan-y" camera-orbit="0deg 42deg 105%" shadow-intensity="1" exposure="0.95" interaction-prompt="none" alt="Mapa 3D de Coahuila">
+    <div class="mapa"><model-viewer id="mmv" src="3d/coahuila-mapa.glb?v=34" camera-controls touch-action="pan-y" camera-orbit="0deg 42deg 105%" shadow-intensity="1" exposure="0.95" interaction-prompt="none" alt="Mapa 3D de Coahuila">
       ${Object.entries(MAPA_POS).map(([k, p]) => `<button class="pinmap" slot="hotspot-${k}" data-position="${p.join(" ")}" data-normal="0 1 0" data-k="${k}">${MAPA_LUG[k][0]}</button>`).join("")}
     </model-viewer></div>
     <div class="lugares" id="lugares">${Object.keys(MAPA_POS).map(k => `<button data-k="${k}">${MAPA_LUG[k][0]}</button>`).join("")}</div>
@@ -455,7 +471,7 @@ function linea() {
   document.getElementById("body").innerHTML = `
     <div class="head"><span class="cat">Línea del tiempo</span><span class="num">1577 – 2020</span></div>
     <h2>Coahuila a través del tiempo</h2>
-    <video class="anim" id="vanim" src="linea-tiempo.mp4?v=33" controls playsinline preload="metadata" crossorigin="anonymous"></video>
+    <video class="anim" id="vanim" src="linea-tiempo.mp4?v=34" controls playsinline preload="metadata" crossorigin="anonymous"></video>
     <p class="pcap">Animación generada · música: Jarabe Pateño (Estado de Coahuila), disco de 78 rpm</p>
     <p class="small">Desliza hacia abajo: cada momento aparece al llegar a él.</p>
     <ol class="linea" id="linea">${HITOS.map((h, i) => { const pic = (PICS[h[4]] || [])[h[5]];
@@ -610,5 +626,6 @@ document.getElementById("go").onclick = async () => {
   }
 };
 </script>
+<script src="./animaciones.js?v=34"></script>
 </body>
 </html>
