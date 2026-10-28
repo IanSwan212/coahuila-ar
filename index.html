@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js"></script>
 <script type="module" src="./mindar/mindar-image-aframe.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-<script src="./datos.js?v=26"></script>
+<script src="./datos.js?v=30"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <style>
 /* Layout: cámara a pantalla completa; sobre el cartel flotan las fotos de cada apartado; la ficha sube desde abajo */
@@ -71,6 +71,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-famil
 .hito::before{content:"";position:absolute;left:-19px;top:16px;width:14px;height:14px;border-radius:50%;background:var(--sol);border:3px solid var(--ink)}
 .hito:nth-child(even){transform:translateX(-18px) rotate(1deg)}
 @keyframes hitoin{to{opacity:1;transform:none}}
+.anim{width:100%;max-height:70vh;background:#000;border:5px solid #fff;box-shadow:2px 3px 0 rgba(0,0,0,.25)}
 .hito .anio{font-family:var(--display);font-size:1.5rem;line-height:1;color:var(--barro)}
 .hito b{display:block;margin:2px 0}
 .hito img{width:64px;height:64px;object-fit:cover;border:3px solid #fff;box-shadow:1px 2px 0 rgba(0,0,0,.25)}
@@ -144,14 +145,14 @@ select{font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);back
 <div class="top2" id="top2" hidden><button class="btn x" id="bmapa">Mapa 3D</button><button class="btn" id="blinea">Línea del tiempo</button></div>
 <div class="found" id="found" hidden>¡Cartel detectado! Toca un apartado</div>
 <div class="explore" id="explore" hidden><div class="ex-in">
-  <div class="poster" id="poster"><img src="cartel.jpg?v=26" alt="Cartel de Coahuila"></div>
+  <div class="poster" id="poster"><img src="cartel.jpg?v=30" alt="Cartel de Coahuila"></div>
   <div class="chips" id="chips"></div>
   <button class="btn x" id="back">Volver a la cámara</button>
 </div></div>
 <div class="hint" id="hint" hidden>Apunta al cartel completo</div>
 
 <div class="ar" id="ar">
-<a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=26; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
+<a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=30; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
   color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false"
   cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable">
   <a-assets id="assets"></a-assets>
@@ -372,7 +373,7 @@ document.getElementById("vs").onclick = versus;
 
 // mapa 3D de Coahuila (contorno real) con sus lugares
 const MAPA_LUG = {"saltillo": ["Saltillo", "Capital del estado, fundada en 1577. Aquí están la Catedral de Santiago y el Museo del Desierto.", "catedral"], "arteaga": ["Arteaga", "Sierra de Arteaga: bosque de pino y nieve en invierno, a minutos de Saltillo.", "desierto"], "cepeda": ["General Cepeda", "Rincón Colorado, zona paleontológica donde se halló el Coahuilaceratops.", "dinos"], "parras": ["Parras", "Casa Madero (1597), la vinícola más antigua de América, y cuna de Francisco I. Madero (1873).", "cultura"], "torreon": ["Torreón", "Corazón de La Laguna: 720,848 habitantes (2020) y el Cristo de las Noas.", "poblacion"], "monclova": ["Monclova", "Ciudad del acero, con la Parroquia de Santiago Apóstol.", "poblacion"], "cienegas": ["Cuatro Ciénegas", "Pozas azules con estromatolitos en pleno desierto. Cuna de Venustiano Carranza (1859).", "desierto"], "muzquiz": ["Múzquiz", "Hogar de los kikapú y de los mascogos, llegados en 1852 a El Nacimiento.", "etnias"], "piedras": ["Piedras Negras", "Frontera con Eagle Pass, Texas. Es el municipio con más personas nacidas en otro país (6,769).", "poblacion"], "acuna": ["Ciudad Acuña", "Frontera con Del Río, Texas: 5,383 personas nacidas en otro país.", "poblacion"]};
-const MAPA_POS = {"saltillo": [0.314, 0.19, 0.664], "torreon": [-0.488, 0.19, 0.619], "monclova": [0.172, 0.19, 0.108], "piedras": [0.47, 0.19, -0.56], "acuna": [0.334, 0.19, -0.792], "parras": [-0.08, 0.19, 0.656], "cienegas": [-0.041, 0.19, 0.078], "muzquiz": [0.138, 0.19, -0.254], "arteaga": [0.361, 0.19, 0.652], "cepeda": [0.155, 0.19, 0.678]};
+const MAPA_POS = {"saltillo": [0.314, 0.257, 0.664], "torreon": [-0.488, 0.204, 0.619], "monclova": [0.172, 0.146, 0.108], "piedras": [0.47, 0.104, -0.56], "acuna": [0.334, 0.11, -0.792], "parras": [-0.08, 0.25, 0.656], "cienegas": [-0.041, 0.161, 0.078], "muzquiz": [0.138, 0.134, -0.254], "arteaga": [0.361, 0.265, 0.652], "cepeda": [0.155, 0.242, 0.678]};
 let mapFloat = null;
 function floatMap(show) {
   if (mapFloat) { mapFloat.parentNode && mapFloat.parentNode.removeChild(mapFloat); mapFloat = null; }
@@ -383,7 +384,7 @@ function floatMap(show) {
   e.setAttribute("rotation", "90 0 0");
   e.setAttribute("animation__in", "property: scale; from: 0.01 0.01 0.01; to: 0.2 0.2 0.2; dur: 900; easing: easeOutBack");
   e.setAttribute("animation__up", `property: position; to: ${0.88 - 0.5} ${H / 2 - 0.26 * H} 0.16; dur: 900; easing: easeOutQuad`);
-  e.setAttribute("gltf-model", "3d/coahuila-mapa.glb");
+  e.setAttribute("gltf-model", "3d/coahuila-mapa.glb?v=30");
   target.appendChild(e); mapFloat = e;
 }
 function mapa() {
@@ -392,7 +393,7 @@ function mapa() {
   document.getElementById("body").innerHTML = `
     <div class="head"><span class="cat">Mapa 3D</span><span class="num">10 lugares</span></div>
     <h2>Recorre Coahuila</h2>
-    <div class="mapa"><model-viewer id="mmv" src="3d/coahuila-mapa.glb" camera-controls touch-action="pan-y" camera-orbit="0deg 42deg 105%" shadow-intensity="1" exposure="1.05" interaction-prompt="none" alt="Mapa 3D de Coahuila">
+    <div class="mapa"><model-viewer id="mmv" src="3d/coahuila-mapa.glb?v=30" camera-controls touch-action="pan-y" camera-orbit="0deg 42deg 105%" shadow-intensity="1" exposure="0.95" interaction-prompt="none" alt="Mapa 3D de Coahuila">
       ${Object.entries(MAPA_POS).map(([k, p]) => `<button class="pinmap" slot="hotspot-${k}" data-position="${p.join(" ")}" data-normal="0 1 0" data-k="${k}">${MAPA_LUG[k][0]}</button>`).join("")}
     </model-viewer></div>
     <div class="lugares" id="lugares">${Object.keys(MAPA_POS).map(k => `<button data-k="${k}">${MAPA_LUG[k][0]}</button>`).join("")}</div>
@@ -415,6 +416,8 @@ function linea() {
   document.getElementById("body").innerHTML = `
     <div class="head"><span class="cat">Línea del tiempo</span><span class="num">1577 – 2020</span></div>
     <h2>Coahuila a través del tiempo</h2>
+    <video class="anim" src="linea-tiempo.mp4?v=30" controls playsinline preload="metadata" poster=""></video>
+    <p class="pcap">Animación generada · música: Jarabe Pateño (Estado de Coahuila), disco de 78 rpm</p>
     <ol class="linea">${HITOS.map((h, i) => { const pic = (PICS[h[4]] || [])[h[5]];
       return `<li><button class="hito" data-sec="${h[3]}" style="animation-delay:${0.15 + i * 0.28}s"><span><span class="anio">${h[0]}</span><b>${h[1]}</b>${h[2]}</span>${pic ? `<img src="${pic.f}" alt="">` : ""}</button></li>`; }).join("")}</ol>
     <div class="row"><button class="btn x" id="close">Cerrar</button></div>`;
