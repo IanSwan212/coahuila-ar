@@ -24,8 +24,7 @@ const K=[
 ];
 
 // --- cartel con franja "Coahuila en datos" ---
-// el cartel creció de 1491 a 2031 px de alto: se ajustan las zonas originales
-S.forEach(s => { s.y = +(s.y * 1491 / 2067).toFixed(2); s.h = +(s.h * 1491 / 2067).toFixed(2); });
+// datos nuevos integrados en los apartados existentes
 const EXTRA = {
  "poblacion": [
   "<b>Migración</b>: unas 77 mil personas llegaron de otros estados entre 2015 y 2020, sobre todo de Veracruz (15.7%), Durango (12.6%) y Nuevo León (11.6%)",
@@ -46,4 +45,4 @@ const EXTRA = {
 };
 S.forEach(s => { if (EXTRA[s.id]) s.f = s.f.filter(x => !/Analfabetismo de|1\.66%/.test(x)).concat(EXTRA[s.id]); });
 // zonas extra: las tarjetas de la franja abren el apartado al que pertenecen
-const ZONES = [{"ref": "poblacion", "x": 2.84, "y": 77.62, "w": 22.46, "h": 9.84}, {"ref": "poblacion", "x": 26.76, "y": 77.62, "w": 22.46, "h": 9.84}, {"ref": "poblacion", "x": 50.68, "y": 77.62, "w": 22.46, "h": 9.84}, {"ref": "poblacion", "x": 74.6, "y": 77.62, "w": 22.46, "h": 9.84}, {"ref": "poblacion", "x": 2.84, "y": 88.29, "w": 22.46, "h": 9.84}, {"ref": "escolaridad", "x": 26.76, "y": 88.29, "w": 22.46, "h": 9.84}, {"ref": "escolaridad", "x": 50.68, "y": 88.29, "w": 22.46, "h": 9.84}, {"ref": "desierto", "x": 74.6, "y": 88.29, "w": 22.46, "h": 9.84}];
+const ZONES = [];
