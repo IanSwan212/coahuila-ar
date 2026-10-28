@@ -124,6 +124,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-famil
 .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
 .chip{flex:none;font-family:var(--display);font-size:.78rem;background:var(--kraft);color:var(--ink);border:0;padding:8px 11px;cursor:pointer;clip-path:polygon(2% 0,98% 6%,100% 94%,0 100%)}
 .chip.seen{background:var(--verde);color:var(--kraft)}
+.skipv{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:13}
 .found{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top));transform:translateX(-50%) rotate(-1deg);z-index:12;background:var(--kraft);font-family:var(--hand);font-size:1.3rem;padding:4px 14px;box-shadow:3px 4px 0 rgba(0,0,0,.35);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.hs .dot{animation:none}}
 .top{position:fixed;top:calc(10px + env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));z-index:14;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
@@ -170,6 +171,8 @@ select{font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);back
   <button class="btn x" id="back">Volver a la cámara</button>
 </div></div>
 <div class="hint" id="hint" hidden>Apunta al cartel completo</div>
+<button class="btn x skipv" id="skipv" hidden>Saltar video y explorar</button>
+<video id="vintro" src="linea-tiempo.mp4?v=35" playsinline preload="auto" crossorigin="anonymous" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
 
 <div class="ar" id="ar">
 <a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=34; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
@@ -564,12 +567,39 @@ document.getElementById("back").onclick = () => { document.getElementById("explo
     const ray = new THREE.Raycaster(); ray.setFromCamera(v, scene.camera);
     const meshes = []; target.object3D.traverse(o => { if (o.isMesh && o.el && o.el.dataset.sec) meshes.push(o); });
     const hit = ray.intersectObjects(meshes, false)[0];
-    if (hit) { const s = S.find(x => x.id === hit.object.el.dataset.sec); if (s && s !== cur) open(s); }
+    if (hit && introState !== "playing") { const s = S.find(x => x.id === hit.object.el.dataset.sec); if (s && s !== cur) open(s); }
   });
 })();
 
-target.addEventListener("targetFound", () => { document.getElementById("hint").hidden = true; const f = document.getElementById("found"); f.hidden = false; clearTimeout(f._t); f._t = setTimeout(() => f.hidden = true, 2500); });
-target.addEventListener("targetLost", () => { document.getElementById("hint").hidden = false; });
+// la película se proyecta sobre el cartel la primera vez que se detecta; al terminar (o al saltarla) empieza el recorrido
+const vintro = document.getElementById("vintro"), skipv = document.getElementById("skipv");
+let introState = "pending", introEl = null; // pending -> playing -> done
+function introShow(on) { [...target.children].forEach(c => { if (c !== introEl && c.object3D) c.object3D.visible = !on; }); }
+function introStart() {
+  introState = "playing";
+  introEl = document.createElement("a-video");
+  introEl.setAttribute("src", "#vintro"); introEl.setAttribute("width", H * 9 / 16); introEl.setAttribute("height", H);
+  introEl.setAttribute("position", "0 0 0.02");
+  introEl.setAttribute("animation__in", "property: scale; from: 0.01 0.01 0.01; to: 1 1 1; dur: 700; easing: easeOutBack");
+  target.appendChild(introEl); introShow(true); skipv.hidden = false;
+  vintro.currentTime = 0; vintro.muted = false;
+  vintro.play().catch(() => { vintro.muted = true; vintro.play(); });
+}
+function introEnd() {
+  if (introState !== "playing") return;
+  introState = "done"; vintro.pause(); skipv.hidden = true;
+  if (introEl) { introEl.parentNode && introEl.parentNode.removeChild(introEl); introEl = null; }
+  introShow(false);
+  const f = document.getElementById("found"); f.textContent = "¡Ahora explora! Toca un apartado"; f.hidden = false; clearTimeout(f._t); f._t = setTimeout(() => f.hidden = true, 3500);
+}
+vintro.onended = introEnd; skipv.onclick = introEnd;
+target.addEventListener("targetFound", () => {
+  document.getElementById("hint").hidden = true;
+  if (introState === "pending") return introStart();
+  if (introState === "playing") return void vintro.play().catch(() => {});
+  const f = document.getElementById("found"); f.hidden = false; clearTimeout(f._t); f._t = setTimeout(() => f.hidden = true, 2500);
+});
+target.addEventListener("targetLost", () => { document.getElementById("hint").hidden = false; if (introState === "playing") vintro.pause(); });
 
 // explica en palabras claras por qué no abrió la cámara
 function fail(msg) {
@@ -602,6 +632,8 @@ document.getElementById("go").onclick = async () => {
   try {
     const st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
     st.getTracks().forEach(t => t.stop());
+    // desbloquea el audio de la película con este toque (iPhone y Android exigen un gesto del usuario)
+    vintro.muted = false; vintro.play().then(() => vintro.pause()).catch(() => {});
     await new Promise(r => setTimeout(r, 600));
   } catch (e) {
     go.textContent = "Encender la cámara";
