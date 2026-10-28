@@ -53,3 +53,8 @@ E.forEach(e => { e[7] = PEXT[e[0]]; e[8] = e[3] / e[2]; });
 K.splice(4, 0,
   { i: 7, l: "Pobreza extrema", src: "CONEVAL, 2022", low: true, f: v => v.toFixed(1) + "%" },
   { i: 8, l: "Densidad de población", src: "INEGI, 2020", neutral: true, f: v => Math.round(v).toLocaleString("es-MX") + " hab/km²" });
+
+// esperanza de vida al nacer (años), INEGI, serie 2010-2024
+const EVIDA = {"Nuevo León":77.7,"Baja California Sur":77.2,"Coahuila":77.1,"Aguascalientes":76.8,"Ciudad de México":76.8,"Sonora":76.8,"Baja California":76.6,"Chihuahua":76.6,"Querétaro":76.3,"Colima":76.2,"Sinaloa":76.1,"Jalisco":76.0,"Quintana Roo":76.0,"Tamaulipas":75.9,"Nayarit":75.6,"Durango":75.5,"San Luis Potosí":75.3,"Estado de México":75.1,"Yucatán":75.0,"Guanajuato":74.9,"Campeche":74.5,"Zacatecas":74.4,"Morelos":74.3,"Tlaxcala":74.2,"Michoacán":74.1,"Hidalgo":73.9,"Puebla":73.9,"Tabasco":73.8,"Veracruz":73.7,"Oaxaca":73.3,"Guerrero":73.1,"Chiapas":73.0};
+E.forEach(e => { e[9] = EVIDA[e[0]]; });
+K.splice(2, 0, { i: 9, l: "Esperanza de vida", src: "INEGI, 2024", low: false, f: v => v.toFixed(1) + " años" });
