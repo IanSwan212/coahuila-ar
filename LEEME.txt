@@ -41,3 +41,5 @@ CREDITOS DE LOS MODELOS 3D
 - Uvas y carne asada: Kenney Food Kit (CC0), kenney.nl
 - Biznaga (Ferocactus wislizeni): Smithsonian Open Access (CC0), 3d.si.edu
 - Zopilote / buitre: "Turkey vulture" por Poly by Google (CC-BY 3.0), via poly.pizza
+- Mapa 3D: elevación de Terrain Tiles (AWS/Mapzen, datos abiertos), ríos y presa de Natural Earth (dominio público),
+  contorno estatal de angelnmara/geojson
