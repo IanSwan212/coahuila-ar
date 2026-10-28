@@ -127,6 +127,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-famil
 .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
 .chip{flex:none;font-family:var(--display);font-size:.78rem;background:var(--kraft);color:var(--ink);border:0;padding:8px 11px;cursor:pointer;clip-path:polygon(2% 0,98% 6%,100% 94%,0 100%)}
 .chip.seen{background:var(--verde);color:var(--kraft)}
+/* A-Frame pone un botón de VR/AR aunque vr-mode-ui esté desactivado: no se usa aquí */
+.a-enter-vr,.a-enter-ar,.a-enter-vr-button,.a-enter-ar-button,.a-orientation-modal{display:none!important}
 .skipv{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:13}
 .found{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top));transform:translateX(-50%) rotate(-1deg);z-index:12;background:var(--kraft);font-family:var(--hand);font-size:1.3rem;padding:4px 14px;box-shadow:3px 4px 0 rgba(0,0,0,.35);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.hs .dot{animation:none}}
