@@ -129,6 +129,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-famil
 .chip.seen{background:var(--verde);color:var(--kraft)}
 /* A-Frame pone un botón de VR/AR aunque vr-mode-ui esté desactivado: no se usa aquí */
 .a-enter-vr,.a-enter-ar,.a-enter-vr-button,.a-enter-ar-button,.a-orientation-modal{display:none!important}
+.vfull{position:fixed;inset:0;z-index:12;background:#000;display:flex;align-items:center;justify-content:center}
+.vfull video{max-width:100%;max-height:100%;width:auto;height:100%;object-fit:contain}
 .skipv{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:13}
 .found{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top));transform:translateX(-50%) rotate(-1deg);z-index:12;background:var(--kraft);font-family:var(--hand);font-size:1.3rem;padding:4px 14px;box-shadow:3px 4px 0 rgba(0,0,0,.35);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.hs .dot{animation:none}}
@@ -176,6 +178,7 @@ select{font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);back
   <button class="btn x" id="back">Volver a la cámara</button>
 </div></div>
 <div class="hint" id="hint" hidden>Apunta al cartel completo</div>
+<div class="vfull" id="vfull" hidden><video id="vfullv" src="linea-tiempo.mp4?v=35" playsinline preload="metadata"></video></div>
 <button class="btn x skipv" id="skipv" hidden>Saltar video y explorar</button>
 <video id="vintro" src="linea-tiempo.mp4?v=35" playsinline preload="auto" crossorigin="anonymous" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
 
@@ -561,7 +564,19 @@ function markSeen(s) {
   S.forEach(x => x.hsEl && x.hsEl.classList.toggle("sel", x === s));
   s.hsEl && s.hsEl.classList.add("seen"); s.chipEl && s.chipEl.classList.add("seen");
 }
-document.getElementById("nocam").onclick = () => { document.getElementById("intro").hidden = true; document.getElementById("top").hidden = false; document.getElementById("top2").hidden = false; document.getElementById("explore").hidden = false; };
+// sin cámara: igual que con el cartel detectado, primero la película a pantalla completa y luego el cartel
+const vfull = document.getElementById("vfull"), vfullv = document.getElementById("vfullv");
+function fullEnd() {
+  if (vfull.hidden) return;
+  vfullv.pause(); vfull.hidden = true; skipv.hidden = true;
+  document.getElementById("top").hidden = false; document.getElementById("top2").hidden = false; document.getElementById("explore").hidden = false;
+}
+vfullv.onended = fullEnd;
+document.getElementById("nocam").onclick = () => {
+  document.getElementById("intro").hidden = true;
+  vfull.hidden = false; skipv.hidden = false; vfullv.currentTime = 0;
+  vfullv.play().catch(() => { vfullv.muted = true; vfullv.play().catch(fullEnd); });
+};
 document.getElementById("ex").onclick = () => { document.getElementById("explore").hidden = false; closeSheet(); };
 document.getElementById("back").onclick = () => { document.getElementById("explore").hidden = true; closeSheet(); };
 
@@ -601,7 +616,7 @@ function introEnd() {
   introShow(false);
   const f = document.getElementById("found"); f.textContent = "¡Ahora explora! Toca un apartado"; f.hidden = false; clearTimeout(f._t); f._t = setTimeout(() => f.hidden = true, 3500);
 }
-vintro.onended = introEnd; skipv.onclick = introEnd;
+vintro.onended = introEnd; skipv.onclick = () => (vfull && !vfull.hidden ? fullEnd() : introEnd());
 target.addEventListener("targetFound", () => {
   document.getElementById("hint").hidden = true;
   if (introState === "pending") return introStart();
