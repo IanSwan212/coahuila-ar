@@ -178,9 +178,9 @@ select{font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);back
   <button class="btn x" id="back">Volver a la cámara</button>
 </div></div>
 <div class="hint" id="hint" hidden>Apunta al cartel completo</div>
-<div class="vfull" id="vfull" hidden><video id="vfullv" src="linea-tiempo.mp4?v=35" playsinline preload="metadata"></video></div>
+<div class="vfull" id="vfull" hidden><video id="vfullv" src="linea-tiempo.mp4?v=36" playsinline preload="auto"></video></div>
 <button class="btn x skipv" id="skipv" hidden>Saltar video y explorar</button>
-<video id="vintro" src="linea-tiempo.mp4?v=35" playsinline preload="auto" crossorigin="anonymous" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
+<video id="vintro" src="linea-tiempo.mp4?v=36" playsinline preload="auto" crossorigin="anonymous" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
 
 <div class="ar" id="ar">
 <a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=34; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
@@ -486,7 +486,7 @@ function linea() {
   document.getElementById("body").innerHTML = `
     <div class="head"><span class="cat">Línea del tiempo</span><span class="num">1577 – 2020</span></div>
     <h2>Coahuila a través del tiempo</h2>
-    <video class="anim" id="vanim" src="linea-tiempo.mp4?v=35" controls playsinline preload="metadata" crossorigin="anonymous"></video>
+    <video class="anim" id="vanim" src="linea-tiempo.mp4?v=36" controls playsinline preload="metadata" crossorigin="anonymous"></video>
     <p class="pcap">De mar a desierto: 73 millones de años de Coahuila</p>
     <p class="small">Desliza hacia abajo: cada momento aparece al llegar a él.</p>
     <ol class="linea" id="linea">${HITOS.map((h, i) => { const pic = (PICS[h[4]] || [])[h[5]];
