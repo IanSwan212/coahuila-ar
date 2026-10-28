@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js"></script>
 <script type="module" src="./mindar/mindar-image-aframe.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-<script src="./datos.js?v=25"></script>
+<script src="./datos.js?v=26"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <style>
 /* Layout: cámara a pantalla completa; sobre el cartel flotan las fotos de cada apartado; la ficha sube desde abajo */
@@ -53,6 +53,28 @@ html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-famil
 .btn.x{background:var(--barro)}.btn.v{background:var(--verde)}
 .btn:focus-visible,.go:focus-visible{outline:3px dashed var(--sol);outline-offset:3px}
 [hidden]{display:none!important}
+.top2{position:fixed;top:calc(84px + env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));z-index:14;display:flex;gap:6px}
+.top2 .btn{font-size:.72rem;padding:8px 10px;box-shadow:2px 3px 0 rgba(0,0,0,.3)}
+/* mapa 3D */
+.mapa model-viewer{width:100%;height:min(62vh,440px);background:radial-gradient(circle at 50% 45%,#5d86c9,#1f4fa3);--poster-color:transparent}
+.pinmap{width:18px;height:18px;padding:0;border-radius:50%;background:var(--sol);border:3px solid var(--ink);cursor:pointer;box-shadow:2px 2px 0 rgba(0,0,0,.35);font-size:0;color:transparent}
+.pinmap[aria-pressed="true"]{width:auto;height:auto;padding:3px 8px;border-radius:999px;background:var(--barro);color:var(--kraft);font-family:var(--display);font-size:.66rem;white-space:nowrap;z-index:2}
+.lugares{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.lugares button{flex:none;font-family:var(--display);font-size:.7rem;border:0;background:#fff8e6;color:var(--ink);padding:7px 10px;cursor:pointer}
+.lugares button[aria-pressed="true"]{background:var(--sol)}
+.lugar{background:#fff8e6;border-left:6px solid var(--sol);padding:9px 12px;line-height:1.4;min-height:3.2em}
+/* línea del tiempo */
+.linea{list-style:none;margin:0;padding:0 0 0 22px;position:relative;display:flex;flex-direction:column;gap:12px}
+.linea::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:4px;background:repeating-linear-gradient(var(--ink) 0 10px,transparent 10px 16px)}
+.hito{position:relative;background:#fff8e6;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;cursor:pointer;border:0;text-align:left;font:inherit;color:inherit;width:100%;
+  opacity:0;transform:translateX(-18px) rotate(-1deg);animation:hitoin .5s cubic-bezier(.3,1.4,.5,1) forwards;box-shadow:2px 3px 0 rgba(0,0,0,.2)}
+.hito::before{content:"";position:absolute;left:-19px;top:16px;width:14px;height:14px;border-radius:50%;background:var(--sol);border:3px solid var(--ink)}
+.hito:nth-child(even){transform:translateX(-18px) rotate(1deg)}
+@keyframes hitoin{to{opacity:1;transform:none}}
+.hito .anio{font-family:var(--display);font-size:1.5rem;line-height:1;color:var(--barro)}
+.hito b{display:block;margin:2px 0}
+.hito img{width:64px;height:64px;object-fit:cover;border:3px solid #fff;box-shadow:1px 2px 0 rgba(0,0,0,.25)}
+@media (prefers-reduced-motion:reduce){.hito{animation:none;opacity:1;transform:none}}
 .pop{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(10,20,15,.4)}
 .pop .box{width:min(84vw,420px);display:flex;flex-direction:column;align-items:center;gap:8px;animation:popin .6s cubic-bezier(.3,1.6,.5,1) both}
 .pop.out .box{animation:popout .45s ease-in forwards}
@@ -119,16 +141,17 @@ select{font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);back
 </div>
 <div class="top" id="top" hidden><span class="stamp" id="count">0/11 EXPLORADO</span><span style="display:flex;gap:6px"><button class="btn" id="ex">Explorar cartel</button><button class="btn v" id="vs">Comparar</button></span></div>
 <div class="pop" id="pop" hidden><div class="box"><img id="pimg" alt="" hidden><model-viewer id="pmv" camera-controls auto-rotate auto-rotate-delay="0" rotation-per-second="60deg" shadow-intensity="1" exposure="1.1" interaction-prompt="none" loading="eager" alt="Modelo 3D"></model-viewer><span class="plab" id="plab"></span><span class="pcred" id="pcred"></span></div></div>
+<div class="top2" id="top2" hidden><button class="btn x" id="bmapa">Mapa 3D</button><button class="btn" id="blinea">Línea del tiempo</button></div>
 <div class="found" id="found" hidden>¡Cartel detectado! Toca un apartado</div>
 <div class="explore" id="explore" hidden><div class="ex-in">
-  <div class="poster" id="poster"><img src="cartel.jpg?v=25" alt="Cartel de Coahuila"></div>
+  <div class="poster" id="poster"><img src="cartel.jpg?v=26" alt="Cartel de Coahuila"></div>
   <div class="chips" id="chips"></div>
   <button class="btn x" id="back">Volver a la cámara</button>
 </div></div>
 <div class="hint" id="hint" hidden>Apunta al cartel completo</div>
 
 <div class="ar" id="ar">
-<a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=25; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
+<a-scene id="scene" embedded gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/versioned/decoders/1.5.6/" mindar-image="imageTargetSrc: ./targets.mind?v=26; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
   color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false"
   cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable">
   <a-assets id="assets"></a-assets>
@@ -289,6 +312,7 @@ function go(j) {
   clearTimeout(gt); if (pics.length > 1) gt = setTimeout(() => go(pi + 1), 5000);
 }
 function open(s) {
+  typeof floatMap === "function" && floatMap(false);
   cur = s; const i = S.indexOf(s), pics = PICS[s.id] || [];
   const sh = document.getElementById("sheet");
   sh.style.setProperty("--th", s.th); sh.style.setProperty("--tf", s.tf || "var(--kraft)");
@@ -310,7 +334,7 @@ function open(s) {
   markSeen(s); seen.add(s.id); document.getElementById("count").textContent = `${seen.size}/${S.length} EXPLORADO`;
   play(); sheetOpen();
 }
-function closeSheet() { document.getElementById("sheet").classList.add("off"); audio.pause(); clearTimeout(gt); hidePop(); }
+function closeSheet() { document.getElementById("sheet").classList.add("off"); audio.pause(); clearTimeout(gt); hidePop(); typeof floatMap === "function" && floatMap(false); }
 
 // Coahuila vs. tu estado, igual que en la versión interactiva
 function versus() {
@@ -346,6 +370,62 @@ function versus() {
 }
 document.getElementById("vs").onclick = versus;
 
+// mapa 3D de Coahuila (contorno real) con sus lugares
+const MAPA_LUG = {"saltillo": ["Saltillo", "Capital del estado, fundada en 1577. Aquí están la Catedral de Santiago y el Museo del Desierto.", "catedral"], "arteaga": ["Arteaga", "Sierra de Arteaga: bosque de pino y nieve en invierno, a minutos de Saltillo.", "desierto"], "cepeda": ["General Cepeda", "Rincón Colorado, zona paleontológica donde se halló el Coahuilaceratops.", "dinos"], "parras": ["Parras", "Casa Madero (1597), la vinícola más antigua de América, y cuna de Francisco I. Madero (1873).", "cultura"], "torreon": ["Torreón", "Corazón de La Laguna: 720,848 habitantes (2020) y el Cristo de las Noas.", "poblacion"], "monclova": ["Monclova", "Ciudad del acero, con la Parroquia de Santiago Apóstol.", "poblacion"], "cienegas": ["Cuatro Ciénegas", "Pozas azules con estromatolitos en pleno desierto. Cuna de Venustiano Carranza (1859).", "desierto"], "muzquiz": ["Múzquiz", "Hogar de los kikapú y de los mascogos, llegados en 1852 a El Nacimiento.", "etnias"], "piedras": ["Piedras Negras", "Frontera con Eagle Pass, Texas. Es el municipio con más personas nacidas en otro país (6,769).", "poblacion"], "acuna": ["Ciudad Acuña", "Frontera con Del Río, Texas: 5,383 personas nacidas en otro país.", "poblacion"]};
+const MAPA_POS = {"saltillo": [0.314, 0.19, 0.664], "torreon": [-0.488, 0.19, 0.619], "monclova": [0.172, 0.19, 0.108], "piedras": [0.47, 0.19, -0.56], "acuna": [0.334, 0.19, -0.792], "parras": [-0.08, 0.19, 0.656], "cienegas": [-0.041, 0.19, 0.078], "muzquiz": [0.138, 0.19, -0.254], "arteaga": [0.361, 0.19, 0.652], "cepeda": [0.155, 0.19, 0.678]};
+let mapFloat = null;
+function floatMap(show) {
+  if (mapFloat) { mapFloat.parentNode && mapFloat.parentNode.removeChild(mapFloat); mapFloat = null; }
+  if (!show) return;
+  // sale de la silueta verde de Coahuila que tiene el cartel (lado derecho)
+  const e = document.createElement("a-entity");
+  e.setAttribute("position", `${0.88 - 0.5} ${H / 2 - 0.26 * H} 0.05`);
+  e.setAttribute("rotation", "90 0 0");
+  e.setAttribute("animation__in", "property: scale; from: 0.01 0.01 0.01; to: 0.2 0.2 0.2; dur: 900; easing: easeOutBack");
+  e.setAttribute("animation__up", `property: position; to: ${0.88 - 0.5} ${H / 2 - 0.26 * H} 0.16; dur: 900; easing: easeOutQuad`);
+  e.setAttribute("gltf-model", "3d/coahuila-mapa.glb");
+  target.appendChild(e); mapFloat = e;
+}
+function mapa() {
+  cur = null; audio.pause(); clearTimeout(gt); hidePop();
+  const sh = document.getElementById("sheet"); sh.style.setProperty("--th", "var(--verde)"); sh.style.setProperty("--tf", "var(--kraft)");
+  document.getElementById("body").innerHTML = `
+    <div class="head"><span class="cat">Mapa 3D</span><span class="num">10 lugares</span></div>
+    <h2>Recorre Coahuila</h2>
+    <div class="mapa"><model-viewer id="mmv" src="3d/coahuila-mapa.glb" camera-controls touch-action="pan-y" camera-orbit="0deg 42deg 105%" shadow-intensity="1" exposure="1.05" interaction-prompt="none" alt="Mapa 3D de Coahuila">
+      ${Object.entries(MAPA_POS).map(([k, p]) => `<button class="pinmap" slot="hotspot-${k}" data-position="${p.join(" ")}" data-normal="0 1 0" data-k="${k}">${MAPA_LUG[k][0]}</button>`).join("")}
+    </model-viewer></div>
+    <div class="lugares" id="lugares">${Object.keys(MAPA_POS).map(k => `<button data-k="${k}">${MAPA_LUG[k][0]}</button>`).join("")}</div>
+    <div class="lugar" id="lugar">Toca un punto del mapa o un lugar de la lista. Gira y acerca el mapa con los dedos.</div>
+    <div class="row"><button class="btn x" id="close">Cerrar</button><button class="btn" id="irsec" hidden>Ver apartado →</button></div>`;
+  document.querySelectorAll(".pinmap, #lugares button").forEach(b => b.onclick = () => {
+    const k = b.dataset.k, [n, txt, sec] = MAPA_LUG[k];
+    document.querySelectorAll(".pinmap, #lugares button").forEach(x => x.setAttribute("aria-pressed", x.dataset.k === k));
+    document.getElementById("lugar").innerHTML = `<b>${n}</b><br>${txt}`;
+    const ir = document.getElementById("irsec"); ir.hidden = false; ir.onclick = () => open(S.find(s => s.id === sec));
+  });
+  document.getElementById("close").onclick = closeSheet;
+  floatMap(true); sheetOpen();
+}
+// línea del tiempo: los hitos aparecen uno por uno; cada uno abre su apartado
+const HITOS = [[1577, "Se funda Saltillo", "Nace la capital del estado.", "catedral", "poblacion", 0], [1597, "Nace Casa Madero", "En Parras: la vinícola más antigua de América.", "cultura", "cultura", 3], [1745, "Comienza la Catedral de Santiago", "Se bendice en 1800; su torre mide 81 m.", "catedral", "catedral", 1], [1852, "Llegan los mascogos", "Se asientan en El Nacimiento, Múzquiz, huyendo de la esclavitud.", "etnias", "etnias", 0], [1859, "Nace Venustiano Carranza", "En Cuatro Ciénegas.", "identidad", "identidad", 5], [1873, "Nace Francisco I. Madero", "En Parras de la Fuente.", "identidad", "identidad", 4], [1913, "Plan de Guadalupe", "Se firma en Ramos Arizpe e inicia el movimiento constitucionalista.", "identidad", "identidad", 0], [1923, "Nace la Antonio Narro", "Escuela de agricultura que hoy es la UAAAN, en Saltillo.", "escolaridad", "escolaridad", 1], [2007, "Se describe el Velafrons", "Hadrosaurio hallado cerca de Saltillo.", "dinos", "dinos", 0], [2010, "Se describe el Coahuilaceratops", "Primer dinosaurio con cuernos nombrado en México.", "dinos", "dinos", 1], [2020, "Censo: 3,146,771 habitantes", "91.7% vive en ciudades; escolaridad de 10.4 años.", "poblacion", "poblacion", 0]];
+function linea() {
+  cur = null; audio.pause(); clearTimeout(gt); hidePop(); floatMap(false);
+  const sh = document.getElementById("sheet"); sh.style.setProperty("--th", "var(--barro)"); sh.style.setProperty("--tf", "var(--kraft)");
+  document.getElementById("body").innerHTML = `
+    <div class="head"><span class="cat">Línea del tiempo</span><span class="num">1577 – 2020</span></div>
+    <h2>Coahuila a través del tiempo</h2>
+    <ol class="linea">${HITOS.map((h, i) => { const pic = (PICS[h[4]] || [])[h[5]];
+      return `<li><button class="hito" data-sec="${h[3]}" style="animation-delay:${0.15 + i * 0.28}s"><span><span class="anio">${h[0]}</span><b>${h[1]}</b>${h[2]}</span>${pic ? `<img src="${pic.f}" alt="">` : ""}</button></li>`; }).join("")}</ol>
+    <div class="row"><button class="btn x" id="close">Cerrar</button></div>`;
+  document.querySelectorAll(".hito").forEach(b => b.onclick = () => open(S.find(s => s.id === b.dataset.sec)));
+  document.getElementById("close").onclick = closeSheet;
+  sheetOpen();
+}
+document.getElementById("bmapa").onclick = mapa;
+document.getElementById("blinea").onclick = linea;
+
+
 // cerrar la ficha deslizándola hacia abajo
 (function () {
   const sh = document.getElementById("sheet");
@@ -372,7 +452,7 @@ document.getElementById("vs").onclick = versus;
 document.addEventListener("pointerdown", e => {
   const sh = document.getElementById("sheet");
   if (sh.classList.contains("off")) return;
-  if (e.target.closest("#sheet, #pop, .top, .hs, .chip")) return;
+  if (e.target.closest("#sheet, #pop, .top, .top2, .hs, .chip")) return;
   closeSheet();
 }, true);
 
@@ -397,7 +477,7 @@ function markSeen(s) {
   S.forEach(x => x.hsEl && x.hsEl.classList.toggle("sel", x === s));
   s.hsEl && s.hsEl.classList.add("seen"); s.chipEl && s.chipEl.classList.add("seen");
 }
-document.getElementById("nocam").onclick = () => { document.getElementById("intro").hidden = true; document.getElementById("top").hidden = false; document.getElementById("explore").hidden = false; };
+document.getElementById("nocam").onclick = () => { document.getElementById("intro").hidden = true; document.getElementById("top").hidden = false; document.getElementById("top2").hidden = false; document.getElementById("explore").hidden = false; };
 document.getElementById("ex").onclick = () => { document.getElementById("explore").hidden = false; closeSheet(); };
 document.getElementById("back").onclick = () => { document.getElementById("explore").hidden = true; closeSheet(); };
 
@@ -434,7 +514,7 @@ scene.addEventListener("arError", () => fail("La cámara se abrió pero no pudo 
 scene.addEventListener("arReady", () => {
   document.getElementById("intro").hidden = true;
   document.getElementById("hint").hidden = false;
-  document.getElementById("top").hidden = false;
+  document.getElementById("top").hidden = false; document.getElementById("top2").hidden = false;
 });
 
 document.getElementById("go").onclick = async () => {
